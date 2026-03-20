@@ -54,19 +54,31 @@ import { Product, Category, ProductImage } from '../../../models/store.models';
               
               <!-- Multiple Images -->
               <div class="col-span-full">
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Image URLs</label>
-                <div *ngFor="let img of images; let i = index" class="flex items-center space-x-2 mb-2">
-                  <input [(ngModel)]="images[i]" type="text" placeholder="https://..." class="flex-grow px-4 py-2 rounded-lg border focus:ring-2 focus:ring-indigo-500 outline-none">
-                  <button (click)="removeImageSlot(i)" class="text-red-500 p-2 hover:bg-red-50 rounded-lg">Remove</button>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Upload Images</label>
+                <input type="file" (change)="onFileSelected($event)" multiple accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all cursor-pointer">
+                
+                <div class="grid grid-cols-2 gap-4">
+                  <div *ngFor="let url of images; let i = index" class="relative group aspect-square rounded-xl overflow-hidden border">
+                    <img [src]="url" class="w-full h-full object-cover">
+                    <button (click)="removeImageSlot(i)" class="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  </div>
                 </div>
-                <button (click)="addImageSlot()" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">+ Add another image</button>
               </div>
             </div>
           </div>
 
           <div class="px-8 py-6 bg-gray-50 flex justify-end space-x-4">
+            <div *ngIf="uploading" class="flex items-center text-indigo-600 mr-auto">
+               <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+               </svg>
+               Uploading images...
+            </div>
             <button (click)="cancel()" class="px-6 py-2.5 text-gray-600 font-semibold hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
-            <button (click)="save()" class="px-8 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 active:scale-95 transition-all">
+            <button (click)="save()" [disabled]="uploading" class="px-8 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 active:scale-95 transition-all disabled:opacity-50">
               Save Changes
             </button>
           </div>
@@ -78,7 +90,7 @@ import { Product, Category, ProductImage } from '../../../models/store.models';
         <div *ngFor="let prod of products" class="bg-white rounded-2xl shadow-sm border p-6 flex flex-col hover:shadow-md transition-shadow">
           <div class="flex space-x-4 mb-4">
             <img [src]="prod.product_images?.[0]?.image_url || 'https://via.placeholder.com/100'" 
-                 class="w-24 h-24 object-cover rounded-xl bg-gray-50 border">
+                 class="w-24 h-24 object-cover rounded-xl bg-gray-50 border shadow-inner">
             <div class="flex-grow">
               <span class="text-xs font-bold uppercase tracking-wider text-indigo-500">{{prod.categories?.name}}</span>
               <h3 class="text-lg font-bold text-gray-900 truncate">{{prod.name}}</h3>
@@ -87,19 +99,19 @@ import { Product, Category, ProductImage } from '../../../models/store.models';
           </div>
           
           <div class="flex justify-between items-center mt-auto pt-4 border-t">
-            <span class="text-sm text-gray-400">ID: {{prod.id}}</span>
+            <span class="text-sm text-gray-400 font-mono">ID: {{prod.id}}</span>
             <div class="flex space-x-2">
-              <button (click)="edit(prod)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg">
+              <button (click)="edit(prod)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
               </button>
-              <button (click)="delete(prod.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+              <button (click)="delete(prod.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
               </button>
             </div>
           </div>
         </div>
 
-        <div *ngIf="products.length === 0" class="col-span-full py-20 text-center bg-white rounded-2xl border-2 border-dashed border-gray-200">
+        <div *ngIf="products.length === 0" class="col-span-full py-20 text-center bg-white rounded-2xl border-2 border-dashed border-gray-100">
           <p class="text-gray-400">Empty product catalog. Start by adding one!</p>
         </div>
       </div>
@@ -112,6 +124,7 @@ export class Products implements OnInit {
   categories: Category[] = [];
   showForm = false;
   editingProduct: any | null = null;
+  uploading = false;
   
   productForm = {
     name: '',
@@ -120,7 +133,7 @@ export class Products implements OnInit {
     category_id: null as any,
     slug: ''
   };
-  images: string[] = [''];
+  images: string[] = []; // URLs of images (newly uploaded or existing)
 
   constructor(private supabase: SupabaseService) {}
 
@@ -139,13 +152,13 @@ export class Products implements OnInit {
     this.showForm = true;
     this.editingProduct = null;
     this.productForm = { name: '', description: '', price: 0, category_id: this.categories[0]?.id, slug: '' };
-    this.images = [''];
+    this.images = [];
   }
 
   edit(prod: any) {
     this.editingProduct = prod;
     this.productForm = { ...prod };
-    this.images = prod.product_images?.map((img: any) => img.image_url) || [''];
+    this.images = prod.product_images?.map((img: any) => img.image_url) || [];
     this.showForm = true;
   }
 
@@ -154,8 +167,22 @@ export class Products implements OnInit {
     this.editingProduct = null;
   }
 
-  addImageSlot() {
-    this.images.push('');
+  async onFileSelected(event: any) {
+    const files = event.target.files as FileList;
+    if (files.length > 0) {
+      this.uploading = true;
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const url = await this.supabase.uploadImage(files[i]);
+          this.images.push(url);
+        }
+      } catch (e) {
+        console.error('Upload failed', e);
+        alert('Failed to upload one or more images');
+      } finally {
+        this.uploading = false;
+      }
+    }
   }
 
   removeImageSlot(index: number) {
@@ -174,10 +201,9 @@ export class Products implements OnInit {
     }
 
     if (productId) {
-      // 2. Handle Images (Sync: Delete old and insert new for simplicity in this demo)
+      // 2. Handle Images (Sync: Delete old and insert new for simplicity)
       await this.supabase.client.from('product_images').delete().eq('product_id', productId);
       const imageObjects = this.images
-        .filter(url => url.trim() !== '')
         .map(url => ({ product_id: productId, image_url: url }));
       
       if (imageObjects.length > 0) {
