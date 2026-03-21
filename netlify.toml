@@ -1,22 +1,3 @@
 [build]
   command = "npm run build"
   publish = "dist/store/browser"
-```
-
-Asegúrate de que el archivo no tenga las líneas con los tres backticks (` ``` `). El error dice exactamente eso:
-```
-Unknown character "96" at row 4, col 1
-```
-
-El carácter 96 es el backtick `` ` ``.
-
----
-
-## Pasos para corregirlo
-
-1. Abre el archivo `netlify.toml` en tu editor
-2. Verifica que el contenido sea **exactamente** estas 3 líneas:
-```
-   [build]
-     command = "npm run build"
-     publish = "dist/store/browser"
