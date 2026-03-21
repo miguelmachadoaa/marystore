@@ -140,7 +140,7 @@ export class SupabaseService {
         *,
         customers (first_name, last_name, email)
       `)
-      .order('created_at', { ascending: false });
+      .order('order_date', { ascending: false });
     
     if (error) {
       console.error('Error fetching orders:', error);

@@ -37,7 +37,7 @@ import { SupabaseService } from '../../../services/supabase.service';
                 </div>
               </td>
               <td class="px-8 py-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                {{ order.created_at | date:'mediumDate' }}
+                {{ order.order_date | date:'mediumDate' }}
               </td>
               <td class="px-8 py-6 text-right font-serif font-black text-gray-900 text-lg italic">
                 {{ order.total_amount | currency }}
