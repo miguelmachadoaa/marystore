@@ -3,22 +3,20 @@
   publish = "dist/store/browser"
 ```
 
-Esto tiene precedencia sobre la configuración de la UI y es más confiable.
+Asegúrate de que el archivo no tenga las líneas con los tres backticks (` ``` `). El error dice exactamente eso:
+```
+Unknown character "96" at row 4, col 1
+```
+
+El carácter 96 es el backtick `` ` ``.
 
 ---
 
-## ¿Por qué pasa esto?
+## Pasos para corregirlo
 
-A partir de **Angular 17+**, el output de build cambió de estructura:
+1. Abre el archivo `netlify.toml` en tu editor
+2. Verifica que el contenido sea **exactamente** estas 3 líneas:
 ```
-# Antes (Angular < 17)
-dist/
-  store/
-    index.html ...
-
-# Ahora (Angular 17+)
-dist/
-  store/
-    browser/      ← aquí están los archivos estáticos
-      index.html ...
-    server/       ← si usas SSR
+   [build]
+     command = "npm run build"
+     publish = "dist/store/browser"
