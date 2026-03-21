@@ -4,6 +4,8 @@ import { AdminLayout } from './pages/admin/admin-layout';
 import { Dashboard } from './pages/admin/dashboard/dashboard';
 import { Categories } from './pages/admin/categories/categories';
 import { Products } from './pages/admin/products/products';
+import { Orders } from './pages/admin/orders/orders';
+import { OrderDetail } from './pages/admin/orders/order-detail';
 import { Login } from './pages/login/login';
 import { AuthGuard } from './guards/auth.guard';
 import { ProductDetail } from './pages/product-detail/product-detail';
@@ -24,6 +26,8 @@ export const routes: Routes = [
       { path: '', component: Dashboard },
       { path: 'categories', component: Categories },
       { path: 'products', component: Products },
+      { path: 'orders', component: Orders },
+      { path: 'orders/:id', component: OrderDetail }
     ],
   },
 ];

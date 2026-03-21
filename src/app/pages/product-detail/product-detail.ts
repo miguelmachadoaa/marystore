@@ -12,20 +12,20 @@ import { CartService } from '../../services/cart.service';
     <div class="min-h-screen bg-white pb-32">
       <!-- Nav Ethereal -->
       <nav class="sticky top-0 z-50 bg-white/60 backdrop-blur-xl border-b border-rose-50 px-10 h-24 flex items-center justify-between">
-        <a routerLink="/" class="text-[10px] font-black tracking-widest text-gray-400 hover:text-gold transition-colors">BACK TO BOUTIQUE</a>
+        <a routerLink="/" class="text-[10px] font-black tracking-widest text-gray-400 hover:text-gold transition-colors">VOLVER A LA BOUTIQUE</a>
         <div class="flex flex-col items-center">
             <span class="text-2xl font-serif font-black italic text-gray-900 leading-none">Mary</span>
             <span class="text-[8px] font-bold tracking-[0.4em] text-gold uppercase">Boutique</span>
         </div>
         <a routerLink="/cart" class="relative group">
-          <span class="text-[10px] font-black tracking-widest text-gray-900 group-hover:text-gold transition-colors">BAG</span>
+          <span class="text-[10px] font-black tracking-widest text-gray-900 group-hover:text-gold transition-colors">BOLSA</span>
           <span *ngIf="cartCount() > 0" class="absolute -top-3 -right-3 w-5 h-5 bg-gold text-white text-[9px] font-black flex items-center justify-center rounded-full shadow-lg border-2 border-white">{{ cartCount() }}</span>
         </a>
       </nav>
 
       <div *ngIf="loading" class="flex flex-col items-center justify-center py-40">
         <div class="animate-spin rounded-xl h-8 w-8 border-2 border-gold border-t-transparent"></div>
-        <p class="mt-8 text-[10px] font-bold text-gray-300 tracking-[0.3em] uppercase">Curating Detail...</p>
+        <p class="mt-8 text-[10px] font-bold text-gray-300 tracking-[0.3em] uppercase">Curando Detalles...</p>
       </div>
 
       <div *ngIf="product && !loading" class="max-w-7xl mx-auto mt-20 px-10 grid grid-cols-1 lg:grid-cols-2 gap-32 animate-fade-in">
@@ -57,18 +57,18 @@ import { CartService } from '../../services/cart.service';
 
           <div class="space-y-6">
             <button (click)="addToCart()" 
-              class="btn-primary w-full">ADD TO BAG</button>
-            <p class="text-center text-[10px] font-bold text-gray-300 uppercase tracking-widest">Free Shipping on all Boutique Orders</p>
+              class="btn-primary w-full uppercase tracking-widest text-xs">Añadir a la Bolsa</button>
+            <p class="text-center text-[10px] font-bold text-gray-300 uppercase tracking-widest">Envío gratuito en todas nuestras piezas</p>
           </div>
 
           <div class="mt-20 pt-10 border-t border-rose-50 space-y-6">
              <div class="flex items-center space-x-4">
                <div class="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-gold"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></div>
-               <span class="text-xs font-bold text-gray-900 uppercase tracking-widest">Handcrafted Excellence</span>
+               <span class="text-xs font-bold text-gray-900 uppercase tracking-widest">Excelencia Artesanal</span>
              </div>
              <div class="flex items-center space-x-4">
                <div class="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-gold"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></div>
-               <span class="text-xs font-bold text-gray-900 uppercase tracking-widest">Designed for You</span>
+               <span class="text-xs font-bold text-gray-900 uppercase tracking-widest">Diseñado para ti</span>
              </div>
           </div>
         </div>

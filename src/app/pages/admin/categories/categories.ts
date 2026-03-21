@@ -9,58 +9,63 @@ import { Category } from '../../../models/store.models';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="p-6 max-w-4xl mx-auto">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Manage Categories</h1>
-        <button (click)="isAdding = true" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-          Add Category
+    <div class="p-8 max-w-5xl mx-auto">
+      <div class="flex justify-between items-end mb-12">
+        <div>
+          <h1 class="text-4xl font-serif font-black text-gray-900 italic">Categorías</h1>
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] mt-2">Organización de la colección</p>
+        </div>
+        <button (click)="isAdding = true" class="btn-primary px-8 py-3 uppercase tracking-widest text-[10px]">
+          Nueva Categoría
         </button>
       </div>
 
       <!-- Add/Edit Form -->
-      <div *ngIf="isAdding || editingCategory" class="bg-white p-6 rounded-xl shadow-sm border mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
-        <h2 class="text-xl font-semibold mb-4">{{editingCategory ? 'Edit' : 'New'}} Category</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-            <input [(ngModel)]="categoryForm.name" type="text" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-indigo-500 outline-none">
+      <div *ngIf="isAdding || editingCategory" class="bg-white p-10 rounded-[3rem] border border-rose-100 shadow-2xl shadow-rose-100/20 mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
+        <h2 class="text-xl font-serif font-black text-gray-900 mb-8 italic uppercase tracking-tighter">{{editingCategory ? 'Editar' : 'Nueva'}} Categoría</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="space-y-2">
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Nombre</label>
+            <input [(ngModel)]="categoryForm.name" type="text" class="w-full px-6 py-4 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all placeholder:text-gray-200 font-medium">
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-            <input [(ngModel)]="categoryForm.slug" type="text" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-indigo-500 outline-none">
+          <div class="space-y-2">
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Slug</label>
+            <input [(ngModel)]="categoryForm.slug" type="text" class="w-full px-6 py-4 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all placeholder:text-gray-200 font-medium">
           </div>
         </div>
-        <div class="mt-6 flex justify-end space-x-3">
-          <button (click)="cancel()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
-          <button (click)="save()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm">
-            Save Category
+        <div class="mt-10 flex justify-end space-x-6">
+          <button (click)="cancel()" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors">Cancelar</button>
+          <button (click)="save()" class="btn-primary px-10 py-4 uppercase tracking-widest text-[10px]">
+            Guardar Cambios
           </button>
         </div>
       </div>
 
       <!-- Table -->
-      <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <table class="w-full text-left border-collapse">
+      <div class="bg-white rounded-[2.5rem] shadow-sm border border-rose-50 overflow-hidden">
+        <table class="w-full text-left">
           <thead>
-            <tr class="bg-gray-50 border-b">
-              <th class="px-6 py-4 text-sm font-semibold text-gray-600">ID</th>
-              <th class="px-6 py-4 text-sm font-semibold text-gray-600">Name</th>
-              <th class="px-6 py-4 text-sm font-semibold text-gray-600">Slug</th>
-              <th class="px-6 py-4 text-sm font-semibold text-gray-600 text-right">Actions</th>
+            <tr class="bg-[#fcf9f8] border-b border-rose-50">
+              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">ID</th>
+              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Nombre</th>
+              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Slug</th>
+              <th class="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            <tr *ngFor="let cat of categories" class="border-b last:border-0 hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 text-sm text-gray-500">{{cat.id}}</td>
-              <td class="px-6 py-4 font-medium text-gray-900">{{cat.name}}</td>
-              <td class="px-6 py-4 text-sm text-gray-600">{{cat.slug}}</td>
-              <td class="px-6 py-4 text-right space-x-2">
-                <button (click)="edit(cat)" class="text-indigo-600 hover:bg-indigo-50 px-3 py-1 rounded-md text-sm font-medium">Edit</button>
-                <button (click)="delete(cat.id)" class="text-red-600 hover:bg-red-50 px-3 py-1 rounded-md text-sm font-medium">Delete</button>
+          <tbody class="divide-y divide-rose-50">
+            <tr *ngFor="let cat of categories" class="hover:bg-rose-50/20 transition-colors">
+              <td class="px-8 py-6 text-xs font-black text-gray-300 uppercase">{{cat.id}}</td>
+              <td class="px-8 py-6 font-serif font-black text-gray-900 text-lg italic">{{cat.name}}</td>
+              <td class="px-8 py-6 text-[11px] font-medium text-gray-400 lowercase">{{cat.slug}}</td>
+              <td class="px-8 py-6 text-right space-x-4">
+                <button (click)="edit(cat)" class="text-[10px] font-black text-gold hover:underline uppercase tracking-widest">Editar</button>
+                <button (click)="delete(cat.id)" class="text-[10px] font-black text-red-300 hover:text-red-500 uppercase tracking-widest">Eliminar</button>
               </td>
             </tr>
             <tr *ngIf="categories.length === 0">
-               <td colspan="4" class="px-6 py-10 text-center text-gray-500">No categories found.</td>
+               <td colspan="4" class="px-8 py-20 text-center">
+                 <p class="text-sm font-serif italic text-gray-400 uppercase tracking-[0.3em]">No se encontraron categorías</p>
+               </td>
             </tr>
           </tbody>
         </table>
@@ -109,7 +114,7 @@ export class Categories implements OnInit {
   }
 
   async delete(id: number) {
-    if (confirm('Are you sure you want to delete this category?')) {
+    if (confirm('¿Estás segura de que quieres eliminar esta categoría?')) {
       await this.supabase.client.from('categories').delete().eq('id', id);
       this.load();
     }

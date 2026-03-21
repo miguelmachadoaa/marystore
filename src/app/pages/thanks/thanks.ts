@@ -13,13 +13,13 @@ import { RouterModule } from '@angular/router';
           <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"></path></svg>
         </div>
         
-        <h1 class="text-5xl md:text-7xl font-serif font-black text-gray-900 mb-6 italic">Thank You, <br>Gorgeous</h1>
-        <p class="text-xl text-gray-500 font-light max-w-lg mx-auto mb-12 uppercase tracking-[0.2em]">Your order has been placed with love</p>
+        <h1 class="text-5xl md:text-7xl font-serif font-black text-gray-900 mb-6 italic">Gracias, <br>Hermosa</h1>
+        <p class="text-xl text-gray-500 font-light max-w-lg mx-auto mb-12 uppercase tracking-[0.2em]">Tu pedido ha sido realizado con amor</p>
         
         <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-rose-100 flex flex-col items-center mb-12">
-          <p class="text-gray-400 font-medium mb-4 uppercase text-xs tracking-widest">Confirmation Sent</p>
-          <p class="text-gray-900 font-serif italic text-lg mb-8">You will receive an email shortly with your order details and tracking information.</p>
-          <button routerLink="/" class="btn-primary w-full max-w-xs">Return to Boutique</button>
+          <p class="text-gray-400 font-medium mb-4 uppercase text-xs tracking-widest">Confirmación Enviada</p>
+          <p class="text-gray-900 font-serif italic text-lg mb-8">Recibirás un correo electrónico en breve con los detalles de tu pedido y la información de seguimiento.</p>
+          <button routerLink="/" class="btn-primary w-full max-w-xs uppercase tracking-widest text-xs">Volver a la Boutique</button>
         </div>
 
         <div class="flex items-center justify-center space-x-8 text-xs font-bold text-gray-400 uppercase tracking-widest">
@@ -27,7 +27,7 @@ import { RouterModule } from '@angular/router';
           <span>•</span>
           <a href="#" class="hover:text-gold transition-colors">Pinterest</a>
           <span>•</span>
-          <a href="#" class="hover:text-gold transition-colors">Support</a>
+          <a href="#" class="hover:text-gold transition-colors">Soporte</a>
         </div>
       </div>
     </div>

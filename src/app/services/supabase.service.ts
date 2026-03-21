@@ -131,4 +131,45 @@ export class SupabaseService {
 
     return order;
   }
+
+  // ORDERS
+  async getOrders() {
+    const { data, error } = await this.supabase
+      .from('orders')
+      .select(`
+        *,
+        customers (first_name, last_name, email)
+      `)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching orders:', error);
+      return { data: [], error };
+    }
+    return { data, error: null };
+  }
+
+  async getOrderById(id: string) {
+    const { data, error } = await this.supabase
+      .from('orders')
+      .select(`
+        *,
+        customers (*),
+        order_details (
+          *,
+          products (
+            *,
+            product_images (*)
+          )
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching order by ID:', error);
+      return { data: null, error };
+    }
+    return { data, error: null };
+  }
 }

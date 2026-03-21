@@ -9,58 +9,67 @@ import { Product, Category, ProductImage } from '../../../models/store.models';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="p-6 max-w-6xl mx-auto">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Manage Products</h1>
-        <button (click)="startAdd()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-          Add Product
+    <div class="p-8 pb-40 max-w-7xl mx-auto">
+      <div class="flex justify-between items-end mb-16">
+        <div>
+          <h1 class="text-5xl font-serif font-black text-gray-900 italic">Bóveda de Joyas</h1>
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.4em] mt-2">Gestión del Inventario de Lujo</p>
+        </div>
+        <button (click)="startAdd()" class="btn-primary px-10 py-4 uppercase tracking-widest text-[10px] shadow-xl shadow-gold/10">
+          Nueva Pieza
         </button>
       </div>
 
       <!-- Add/Edit Modal (Overlay) -->
-      <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-          <div class="px-8 py-6 border-b flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-900">{{editingProduct ? 'Edit' : 'New'}} Product</h2>
-            <button (click)="cancel()" class="text-gray-400 hover:text-gray-600">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300">
+        <div class="bg-white w-full max-w-3xl rounded-[4rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-400 border border-rose-100">
+          <div class="px-12 py-10 border-b border-rose-50 flex justify-between items-center bg-[#fcf9f8]">
+            <h2 class="text-2xl font-serif font-black text-gray-900 italic uppercase tracking-tighter">{{editingProduct ? 'Perfeccionar' : 'Nueva'}} Pieza</h2>
+            <button (click)="cancel()" class="w-10 h-10 rounded-full bg-white border border-rose-50 flex items-center justify-center text-gray-400 hover:text-gold transition-all shadow-sm">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
           </div>
           
-          <div class="p-8 max-h-[70vh] overflow-y-auto space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="col-span-full">
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Name</label>
-                <input [(ngModel)]="productForm.name" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+          <div class="p-12 max-h-[75vh] overflow-y-auto space-y-10 custom-scrollbar">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div class="col-span-full space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Nombre de la Joya</label>
+                <input [(ngModel)]="productForm.name" type="text" class="w-full px-8 py-5 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all placeholder:text-gray-200 font-medium">
               </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Category</label>
-                <select [(ngModel)]="productForm.category_id" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+              <div class="space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Categoría</label>
+                <select [(ngModel)]="productForm.category_id" class="w-full px-8 py-5 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all appearance-none font-medium">
                   <option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Price</label>
-                <input [(ngModel)]="productForm.price" type="number" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+              <div class="space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Precio de Venta</label>
+                <input [(ngModel)]="productForm.price" type="number" step="0.01" class="w-full px-8 py-5 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all font-medium">
               </div>
-              <div class="col-span-full">
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Slug</label>
-                <input [(ngModel)]="productForm.slug" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+              <div class="col-span-full space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Slug (URL)</label>
+                <input [(ngModel)]="productForm.slug" type="text" class="w-full px-8 py-5 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all placeholder:text-gray-200 font-medium font-mono text-xs">
               </div>
-              <div class="col-span-full">
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
-                <textarea [(ngModel)]="productForm.description" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+              <div class="col-span-full space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Descripción Artesanal</label>
+                <textarea [(ngModel)]="productForm.description" rows="4" class="w-full px-8 py-5 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all placeholder:text-gray-200 font-medium"></textarea>
               </div>
               
               <!-- Multiple Images -->
-              <div class="col-span-full">
-                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Upload Images</label>
-                <input type="file" (change)="onFileSelected($event)" multiple accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all cursor-pointer">
+              <div class="col-span-full space-y-4">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Gelería de Imágenes</label>
+                <div class="relative group cursor-pointer">
+                  <input type="file" (change)="onFileSelected($event)" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                  <div class="w-full py-10 border-2 border-dashed border-rose-100 rounded-[2.5rem] bg-[#fcf9f8] group-hover:bg-rose-50/30 transition-all flex flex-col items-center justify-center text-center">
+                    <svg class="w-10 h-10 text-rose-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest">Haz clic para subir imágenes sublimes</p>
+                  </div>
+                </div>
                 
-                <div class="grid grid-cols-2 gap-4">
-                  <div *ngFor="let url of images; let i = index" class="relative group aspect-square rounded-xl overflow-hidden border">
+                <div class="grid grid-cols-3 gap-6 pt-4">
+                  <div *ngFor="let url of images; let i = index" class="relative group aspect-[3/4] rounded-3xl overflow-hidden border border-rose-50 shadow-sm transition-all hover:shadow-lg">
                     <img [src]="url" class="w-full h-full object-cover">
-                    <button (click)="removeImageSlot(i)" class="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button (click)="removeImageSlot(i)" class="absolute top-3 right-3 bg-red-400 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                   </div>
@@ -69,50 +78,49 @@ import { Product, Category, ProductImage } from '../../../models/store.models';
             </div>
           </div>
 
-          <div class="px-8 py-6 bg-gray-50 flex justify-end space-x-4">
-            <div *ngIf="uploading" class="flex items-center text-indigo-600 mr-auto">
-               <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-               </svg>
-               Uploading images...
+          <div class="px-12 py-10 bg-[#fcf9f8] border-t border-rose-50 flex justify-between items-center">
+            <div *ngIf="uploading" class="flex items-center text-gold space-x-4">
+               <div class="animate-spin h-5 w-5 border-2 border-gold border-t-transparent rounded-full"></div>
+               <span class="text-[10px] font-black uppercase tracking-widest">Subiendo...</span>
             </div>
-            <button (click)="cancel()" class="px-6 py-2.5 text-gray-600 font-semibold hover:bg-gray-200 rounded-xl transition-colors">Cancel</button>
-            <button (click)="save()" [disabled]="uploading" class="px-8 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 active:scale-95 transition-all disabled:opacity-50">
-              Save Changes
+            <button (click)="cancel()" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors ml-auto">Cancelar</button>
+            <button (click)="save()" [disabled]="uploading" class="btn-primary px-12 py-4 uppercase tracking-widest text-[10px] ml-10 shadow-xl shadow-gold/10">
+              Guardar Joya
             </button>
           </div>
         </div>
       </div>
 
       <!-- Product List -->
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        <div *ngFor="let prod of products" class="bg-white rounded-2xl shadow-sm border p-6 flex flex-col hover:shadow-md transition-shadow">
-          <div class="flex space-x-4 mb-4">
-            <img [src]="prod.product_images?.[0]?.image_url || 'https://via.placeholder.com/100'" 
-                 class="w-24 h-24 object-cover rounded-xl bg-gray-50 border shadow-inner">
-            <div class="flex-grow">
-              <span class="text-xs font-bold uppercase tracking-wider text-indigo-500">{{prod.categories?.name}}</span>
-              <h3 class="text-lg font-bold text-gray-900 truncate">{{prod.name}}</h3>
-              <p class="text-xl font-black text-gray-800 mt-1">{{prod.price | currency}}</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+        <div *ngFor="let prod of products" class="bg-white rounded-[3rem] shadow-sm border border-rose-50 p-8 flex flex-col hover:shadow-2xl hover:bg-[#fcf9f8]/30 transition-all duration-500 group">
+          <div class="flex space-x-6 mb-8">
+            <div class="w-28 h-36 bg-[#fcf9f8] rounded-[2rem] overflow-hidden shadow-sm border border-rose-50 flex-shrink-0 group-hover:scale-105 transition-transform duration-700">
+              <img [src]="prod.product_images?.[0]?.image_url || 'https://via.placeholder.com/200'" 
+                   class="w-full h-full object-cover">
+            </div>
+            <div class="flex-grow pt-2 flex flex-col">
+              <span class="text-[9px] font-black uppercase tracking-[0.3em] text-gold mb-2 italic">{{prod.categories?.name}}</span>
+              <h3 class="text-xl font-serif font-black text-gray-900 leading-tight italic line-clamp-2 mb-2">{{prod.name}}</h3>
+              <p class="text-2xl font-light tracking-tighter text-gray-900 mt-auto">{{prod.price | currency}}</p>
             </div>
           </div>
           
-          <div class="flex justify-between items-center mt-auto pt-4 border-t">
-            <span class="text-sm text-gray-400 font-mono">ID: {{prod.id}}</span>
+          <div class="flex justify-between items-center mt-auto pt-6 border-t border-rose-50/50">
+            <span class="text-[9px] font-black text-gray-300 uppercase tracking-widest italic">ID: {{prod.id.split('-')[0]}}</span>
             <div class="flex space-x-2">
-              <button (click)="edit(prod)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+              <button (click)="edit(prod)" class="w-10 h-10 rounded-xl bg-white border border-rose-50 text-gray-300 hover:text-gold hover:border-gold flex items-center justify-center transition-all shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
               </button>
-              <button (click)="delete(prod.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              <button (click)="delete(prod.id)" class="w-10 h-10 rounded-xl bg-white border border-rose-50 text-gray-200 hover:text-red-400 hover:border-red-100 flex items-center justify-center transition-all shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
               </button>
             </div>
           </div>
         </div>
 
-        <div *ngIf="products.length === 0" class="col-span-full py-20 text-center bg-white rounded-2xl border-2 border-dashed border-gray-100">
-          <p class="text-gray-400">Empty product catalog. Start by adding one!</p>
+        <div *ngIf="products.length === 0" class="col-span-full py-40 text-center bg-white rounded-[4rem] border-2 border-dashed border-rose-50">
+          <p class="text-sm font-serif italic text-gray-300 uppercase tracking-[0.4em]">El catálogo está vacío actualmente</p>
         </div>
       </div>
     </div>
@@ -178,7 +186,7 @@ export class Products implements OnInit {
         }
       } catch (e) {
         console.error('Upload failed', e);
-        alert('Failed to upload one or more images');
+        alert('Error al subir una o más imágenes');
       } finally {
         this.uploading = false;
       }
@@ -216,7 +224,7 @@ export class Products implements OnInit {
   }
 
   async delete(id: number) {
-    if (confirm('Delete product?')) {
+    if (confirm('¿Eliminar esta joya de la bóveda?')) {
       await this.supabase.client.from('product_images').delete().eq('product_id', id);
       await this.supabase.client.from('products').delete().eq('id', id);
       this.load();
