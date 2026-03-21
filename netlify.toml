@@ -1,0 +1,5 @@
+[build]
+  # remove the wrong absolute path and use a relative path or nothing
+  base = ""
+  command = "npm run build"
+  publish = "dist"
