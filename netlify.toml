@@ -1,0 +1,24 @@
+[build]
+  command = "npm run build"
+  publish = "dist/store/browser"
+```
+
+Esto tiene precedencia sobre la configuración de la UI y es más confiable.
+
+---
+
+## ¿Por qué pasa esto?
+
+A partir de **Angular 17+**, el output de build cambió de estructura:
+```
+# Antes (Angular < 17)
+dist/
+  store/
+    index.html ...
+
+# Ahora (Angular 17+)
+dist/
+  store/
+    browser/      ← aquí están los archivos estáticos
+      index.html ...
+    server/       ← si usas SSR
