@@ -1,5 +1,4 @@
-[build]
-  # remove the wrong absolute path and use a relative path or nothing
+  [build]
   base = ""
   command = "npm run build"
-  publish = "dist"
+  publish = "dist/store/browser"
