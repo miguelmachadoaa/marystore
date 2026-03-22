@@ -34,7 +34,7 @@ import { Product, Category, ProductImage } from '../../../models/store.models';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div class="col-span-full space-y-2">
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Nombre de la Joya</label>
-                <input [(ngModel)]="productForm.name" type="text" class="w-full px-8 py-5 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all placeholder:text-gray-200 font-medium">
+                <input [(ngModel)]="productForm.name" (input)="onNameChange()" type="text" class="w-full px-8 py-5 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all placeholder:text-gray-200 font-medium">
               </div>
               <div class="space-y-2">
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Categoría</label>
@@ -198,29 +198,78 @@ export class Products implements OnInit {
   }
 
   async save() {
-    let productId = this.editingProduct?.id;
-    
-    // 1. Save Product
-    if (this.editingProduct) {
-      await this.supabase.client.from('products').update(this.productForm).eq('id', productId);
-    } else {
-      const { data } = await this.supabase.client.from('products').insert([this.productForm]).select();
-      productId = data?.[0].id;
-    }
-
-    if (productId) {
-      // 2. Handle Images (Sync: Delete old and insert new for simplicity)
-      await this.supabase.client.from('product_images').delete().eq('product_id', productId);
-      const imageObjects = this.images
-        .map(url => ({ product_id: productId, image_url: url }));
+    this.uploading = true;
+    try {
+      let productId = this.editingProduct?.id;
       
-      if (imageObjects.length > 0) {
-        await this.supabase.client.from('product_images').insert(imageObjects);
-      }
-    }
+      // Ensure slug is unique
+      let finalSlug = this.productForm.slug || this.generateSlug(this.productForm.name);
+      let isUnique = false;
+      let counter = 0;
+      let currentSlug = finalSlug;
 
-    this.cancel();
-    this.load();
+      while (!isUnique) {
+        const { data: existing } = await this.supabase.client
+          .from('products')
+          .select('id')
+          .eq('slug', currentSlug)
+          .neq('id', productId || -1) // Exclude current product if editing
+          .maybeSingle();
+
+        if (existing) {
+          counter++;
+          currentSlug = `${finalSlug}-${counter}`;
+        } else {
+          isUnique = true;
+          this.productForm.slug = currentSlug;
+        }
+      }
+
+      // 1. Save Product
+      if (this.editingProduct) {
+        await this.supabase.client.from('products').update(this.productForm).eq('id', productId);
+      } else {
+        const { data, error } = await this.supabase.client.from('products').insert([this.productForm]).select();
+        if (error) throw error;
+        productId = data?.[0].id;
+      }
+
+      if (productId) {
+        // 2. Handle Images (Sync: Delete old and insert new for simplicity)
+        await this.supabase.client.from('product_images').delete().eq('product_id', productId);
+        const imageObjects = this.images
+          .map(url => ({ product_id: productId, image_url: url }));
+        
+        if (imageObjects.length > 0) {
+          await this.supabase.client.from('product_images').insert(imageObjects);
+        }
+      }
+
+      this.cancel();
+      this.load();
+    } catch (e) {
+      console.error('Save failed', e);
+      alert('Error al guardar la joya');
+    } finally {
+      this.uploading = false;
+    }
+  }
+
+  onNameChange() {
+    if (!this.editingProduct) {
+      this.productForm.slug = this.generateSlug(this.productForm.name);
+    }
+  }
+
+  generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with -
+      .replace(/-+/g, '-'); // Remove consecutive -
   }
 
   async delete(id: number) {
