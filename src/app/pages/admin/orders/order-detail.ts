@@ -44,7 +44,7 @@ import { SupabaseService } from '../../../services/supabase.service';
               <span class="text-[10px] font-black text-gold uppercase tracking-[0.4em] mb-4 flex border-b border-white/10 pb-4">Resumen de Pago</span>
               <div class="flex justify-between items-end">
                 <span class="text-gray-400 font-serif italic text-lg uppercase tracking-tighter">TOTAL DE LA VENTA</span>
-                <span class="text-3xl font-serif font-black text-gold italic">{{ order.total_amount | currency }}</span>
+                <span class="text-3xl font-serif font-black text-gold italic">{{ total_amount | currency }}</span>
               </div>
            </div>
         </div>
@@ -66,6 +66,7 @@ import { SupabaseService } from '../../../services/supabase.service';
                  </div>
                  <p class="text-xl font-serif font-black text-gray-900 italic">{{ item.price * item.quantity | currency }}</p>
                </div>
+
              </div>
            </div>
         </div>
@@ -82,15 +83,24 @@ import { SupabaseService } from '../../../services/supabase.service';
 export class OrderDetail implements OnInit {
   order: any = null;
 
+  get total_amount(): number {
+    if (!this.order?.order_details) return 0;
+    return this.order.order_details.reduce(
+      (sum: number, item: any) => sum + item.price * item.quantity, 0
+    );
+  }
+
   constructor(
     private supabase: SupabaseService,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       const { data } = await this.supabase.getOrderById(id);
+      console.log(data);
+      console.log('detail');
       this.order = data;
     }
   }

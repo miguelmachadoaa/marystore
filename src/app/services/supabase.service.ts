@@ -92,9 +92,9 @@ export class SupabaseService {
     // 1. Create or Find Customer
     const { data: customer, error: custError } = await this.supabase
       .from('customers')
-      .insert([{ 
-        first_name: customerData.firstName, 
-        last_name: customerData.lastName, 
+      .insert([{
+        first_name: customerData.firstName,
+        last_name: customerData.lastName,
         email: customerData.email,
         phone: customerData.phone
       }])
@@ -106,9 +106,9 @@ export class SupabaseService {
     // 2. Create Order
     const { data: order, error: orderError } = await this.supabase
       .from('orders')
-      .insert([{ 
-        customer_id: customer.id, 
-        status: 'pending' 
+      .insert([{
+        customer_id: customer.id,
+        status: 'pending'
       }])
       .select()
       .single();
@@ -141,11 +141,12 @@ export class SupabaseService {
         customers (first_name, last_name, email)
       `)
       .order('order_date', { ascending: false });
-    
+
     if (error) {
       console.error('Error fetching orders:', error);
       return { data: [], error };
     }
+    console.log(data);
     return { data, error: null };
   }
 

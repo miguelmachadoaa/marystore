@@ -29,7 +29,7 @@ import { SupabaseService } from '../../../services/supabase.service';
           </thead>
           <tbody class="divide-y divide-rose-50">
             <tr *ngFor="let order of orders" class="hover:bg-rose-50/30 transition-colors">
-              <td class="px-8 py-6 text-xs font-black text-gray-300 text-center uppercase">{{ order.id.split('-')[0] }}</td>
+              <td class="px-8 py-6 text-xs font-black text-gray-300 text-center uppercase">{{ order.id }}</td>
               <td class="px-8 py-6">
                 <div class="flex flex-col">
                   <span class="font-serif font-black text-gray-900">{{ order.customers?.first_name }} {{ order.customers?.last_name }}</span>
@@ -61,10 +61,12 @@ import { SupabaseService } from '../../../services/supabase.service';
 export class Orders implements OnInit {
   orders: any[] = [];
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService) { }
 
   async ngOnInit() {
     const { data } = await this.supabase.getOrders();
+    console.log(data);
+    console.log('page');
     this.orders = data || [];
   }
 }
