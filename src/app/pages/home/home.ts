@@ -61,7 +61,7 @@ import { CartService } from '../../services/cart.service';
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20">
           <div *ngFor="let prod of products" class="group relative flex flex-col items-center text-center">
             <div [routerLink]="['/product', prod.slug]" class="relative w-full aspect-[3/4] bg-[#fcf9f8] rounded-[3rem] overflow-hidden mb-8 shadow-sm group-hover:shadow-2xl transition-all duration-700 cursor-pointer">
-              <img [src]="prod.product_images?.[0]?.image_url || 'https://via.placeholder.com/600x800'" 
+              <img [src]="(prod.images?.[0]?.image_url) || 'https://via.placeholder.com/600x800'" 
                    class="w-full h-full object-cover">
               <div class="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-500"></div>
               <!-- Action Button Hover -->
@@ -70,7 +70,7 @@ import { CartService } from '../../services/cart.service';
               </div>
             </div>
             
-            <span class="text-[9px] font-black uppercase tracking-[0.3em] text-gold mb-3">{{ prod.categories?.name }}</span>
+            <span class="text-[9px] font-black uppercase tracking-[0.3em] text-gold mb-3">{{ prod.category?.name }}</span>
             <h3 class="text-2xl font-serif font-black text-gray-900 mb-2 truncate max-w-full italic">{{ prod.name }}</h3>
             <p class="text-lg font-light tracking-tighter text-gray-400">{{ prod.price | currency }}</p>
           </div>

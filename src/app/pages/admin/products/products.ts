@@ -96,18 +96,18 @@ import { Product, Category, ProductImage } from '../../../models/store.models';
         <div *ngFor="let prod of products" class="bg-white rounded-[3rem] shadow-sm border border-rose-50 p-8 flex flex-col hover:shadow-2xl hover:bg-[#fcf9f8]/30 transition-all duration-500 group">
           <div class="flex space-x-6 mb-8">
             <div class="w-28 h-36 bg-[#fcf9f8] rounded-[2rem] overflow-hidden shadow-sm border border-rose-50 flex-shrink-0 group-hover:scale-105 transition-transform duration-700">
-              <img [src]="prod.product_images?.[0]?.image_url || 'https://via.placeholder.com/200'" 
+              <img [src]="(prod.images?.[0]?.image_url) || 'https://via.placeholder.com/200'" 
                    class="w-full h-full object-cover">
             </div>
             <div class="flex-grow pt-2 flex flex-col">
-              <span class="text-[9px] font-black uppercase tracking-[0.3em] text-gold mb-2 italic">{{prod.categories?.name}}</span>
+              <span class="text-[9px] font-black uppercase tracking-[0.3em] text-gold mb-2 italic">{{prod.category?.name}}</span>
               <h3 class="text-xl font-serif font-black text-gray-900 leading-tight italic line-clamp-2 mb-2">{{prod.name}}</h3>
               <p class="text-2xl font-light tracking-tighter text-gray-900 mt-auto">{{prod.price | currency}}</p>
             </div>
           </div>
           
           <div class="flex justify-between items-center mt-auto pt-6 border-t border-rose-50/50">
-            <span class="text-[9px] font-black text-gray-300 uppercase tracking-widest italic">ID: {{prod.id.split('-')[0]}}</span>
+            <span class="text-[9px] font-black text-gray-300 uppercase tracking-widest italic">ID: {{prod.id.toString().split('-')[0]}}</span>
             <div class="flex space-x-2">
               <button (click)="edit(prod)" class="w-10 h-10 rounded-xl bg-white border border-rose-50 text-gray-300 hover:text-gold hover:border-gold flex items-center justify-center transition-all shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -133,7 +133,7 @@ export class Products implements OnInit {
   showForm = false;
   editingProduct: any | null = null;
   uploading = false;
-  
+
   productForm = {
     name: '',
     description: '',
@@ -143,7 +143,7 @@ export class Products implements OnInit {
   };
   images: string[] = []; // URLs of images (newly uploaded or existing)
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService) { }
 
   async ngOnInit() {
     this.load();
@@ -165,8 +165,15 @@ export class Products implements OnInit {
 
   edit(prod: any) {
     this.editingProduct = prod;
-    this.productForm = { ...prod };
-    this.images = prod.product_images?.map((img: any) => img.image_url) || [];
+    // Only copy relevant fields to prevent pollution
+    this.productForm = {
+      name: prod.name,
+      description: prod.description,
+      price: prod.price,
+      category_id: prod.category_id,
+      slug: prod.slug
+    };
+    this.images = (prod.images || prod.product_images)?.map((img: any) => img.image_url) || [];
     this.showForm = true;
   }
 
@@ -201,7 +208,7 @@ export class Products implements OnInit {
     this.uploading = true;
     try {
       let productId = this.editingProduct?.id;
-      
+
       // Ensure slug is unique
       let finalSlug = this.productForm.slug || this.generateSlug(this.productForm.name);
       let isUnique = false;
@@ -239,7 +246,7 @@ export class Products implements OnInit {
         await this.supabase.client.from('product_images').delete().eq('product_id', productId);
         const imageObjects = this.images
           .map(url => ({ product_id: productId, image_url: url }));
-        
+
         if (imageObjects.length > 0) {
           await this.supabase.client.from('product_images').insert(imageObjects);
         }
@@ -272,7 +279,7 @@ export class Products implements OnInit {
       .replace(/-+/g, '-'); // Remove consecutive -
   }
 
-  async delete(id: number) {
+  async delete(id: any) {
     if (confirm('¿Eliminar esta joya de la bóveda?')) {
       await this.supabase.client.from('product_images').delete().eq('product_id', id);
       await this.supabase.client.from('products').delete().eq('id', id);

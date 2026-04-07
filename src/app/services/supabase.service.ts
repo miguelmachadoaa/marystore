@@ -28,7 +28,7 @@ export class SupabaseService {
   async getProducts() {
     return await this.supabase
       .from('products')
-      .select('*, categories(*), product_images(*)');
+      .select('*, category:categories(*), images:product_images(*)');
   }
 
   // Generic CRUD helpers could be added here
@@ -83,7 +83,7 @@ export class SupabaseService {
   async getProductBySlug(slug: string) {
     return await this.supabase
       .from('products')
-      .select('*, categories(*), product_images(*)')
+      .select('*, category:categories(*), images:product_images(*)')
       .eq('slug', slug)
       .single();
   }

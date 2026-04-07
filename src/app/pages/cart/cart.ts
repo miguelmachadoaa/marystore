@@ -20,32 +20,26 @@ import { SupabaseService } from '../../services/supabase.service';
         <div class="w-20"></div>
       </nav>
 
-      <div class="max-w-7xl mx-auto mt-20 px-10 grid grid-cols-1 lg:grid-cols-3 gap-24 animate-fade-in">
+      <div class="max-w-7xl mx-auto mt-10 md:mt-20 px-6 md:px-10 grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-24 animate-fade-in">
         <!-- List of Items -->
-        <div class="lg:col-span-2 space-y-12">
-          <div *ngIf="items().length === 0" class="py-20 text-center">
-            <h2 class="text-4xl font-serif font-black text-gray-900 mb-6 italic">Tu bolsa está vacía</h2>
-            <p class="text-lg text-gray-400 font-light mb-12 uppercase tracking-widest">Descubre algo especial</p>
-            <button routerLink="/" class="btn-primary uppercase tracking-widest text-xs">Ver Colecciones</button>
-          </div>
-
-          <div *ngFor="let item of items()" class="flex items-center space-x-10 group bg-[#fcf9f8] p-8 rounded-[3rem] border border-rose-50 transition-all hover:shadow-xl hover:bg-white">
-            <img [src]="item.image || 'https://via.placeholder.com/200'" class="w-32 h-40 object-cover rounded-2xl shadow-sm">
-            <div class="flex-grow space-y-2">
+        <div class="lg:col-span-2 space-y-8 md:space-y-12">
+          <div *ngFor="let item of items()" class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-10 group bg-[#fcf9f8] p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] border border-rose-50 transition-all hover:shadow-xl hover:bg-white text-center md:text-left">
+            <img [src]="item.image || 'https://via.placeholder.com/200'" class="w-32 h-40 md:w-32 md:h-40 object-cover rounded-2xl shadow-sm">
+            <div class="flex-grow space-y-2 w-full">
               <span class="text-[9px] font-black uppercase tracking-widest text-gold italic">Pieza Acabada a Mano</span>
-              <h3 class="font-serif font-black text-2xl text-gray-900">{{ item.name }}</h3>
+              <h3 class="font-serif font-black text-xl md:text-2xl text-gray-900 leading-tight">{{ item.name }}</h3>
               <p class="text-xl font-light text-gray-400">{{ item.price | currency }}</p>
               
-              <div class="flex items-center space-x-8 pt-6">
+              <div class="flex flex-col md:flex-row items-center justify-center md:justify-start space-y-6 md:space-y-0 md:space-x-12 pt-6">
                 <div class="flex items-center space-x-4">
-                  <button (click)="updateQty(item.id, item.quantity - 1)" class="w-8 h-8 rounded-full border border-rose-200 flex items-center justify-center hover:bg-gold hover:text-white hover:border-gold transition-all">-</button>
-                  <span class="text-sm font-black">{{ item.quantity }}</span>
-                  <button (click)="updateQty(item.id, item.quantity + 1)" class="w-8 h-8 rounded-full border border-rose-200 flex items-center justify-center hover:bg-gold hover:text-white hover:border-gold transition-all">+</button>
+                  <button (click)="updateQty(item.id, item.quantity - 1)" class="w-10 h-10 md:w-8 md:h-8 rounded-full border border-rose-200 flex items-center justify-center hover:bg-gold hover:text-white hover:border-gold transition-all shadow-sm">-</button>
+                  <span class="text-sm font-black w-6 text-center">{{ item.quantity }}</span>
+                  <button (click)="updateQty(item.id, item.quantity + 1)" class="w-10 h-10 md:w-8 md:h-8 rounded-full border border-rose-200 flex items-center justify-center hover:bg-gold hover:text-white hover:border-gold transition-all shadow-sm">+</button>
                 </div>
                 <button (click)="remove(item.id)" class="text-[10px] font-black uppercase tracking-widest text-gray-300 hover:text-red-500 transition-colors">Eliminar</button>
               </div>
             </div>
-            <p class="text-2xl font-serif font-black text-gray-900">{{ item.price * item.quantity | currency }}</p>
+            <p class="text-2xl font-serif font-black text-gray-900 md:self-center">{{ item.price * item.quantity | currency }}</p>
           </div>
         </div>
 
@@ -107,6 +101,7 @@ export class Cart {
   ) {}
 
   get items() {
+    console.log('Cart items:', this.cartService.items());
     return this.cartService.items;
   }
 

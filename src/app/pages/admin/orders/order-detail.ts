@@ -58,7 +58,7 @@ import { SupabaseService } from '../../../services/supabase.service';
              <div class="divide-y divide-rose-50">
                <div *ngFor="let item of order.order_details" class="p-8 flex items-center space-x-8 hover:bg-rose-50/20 transition-colors">
                  <div class="w-20 h-24 bg-[#fcf9f8] rounded-2xl overflow-hidden shadow-sm border border-rose-50 flex-shrink-0">
-                    <img [src]="item.products?.product_images?.[0]?.image_url || 'https://via.placeholder.com/200'" class="w-full h-full object-cover">
+                    <img [src]="item.products?.images?.[0]?.image_url || 'https://via.placeholder.com/200'" class="w-full h-full object-cover">
                  </div>
                  <div class="flex-grow space-y-1">
                    <h4 class="font-serif font-black text-xl text-gray-900 italic leading-none">{{ item.products?.name }}</h4>

@@ -34,8 +34,8 @@ import { CartService } from '../../services/cart.service';
           <div class="aspect-[3/4] bg-[#fcf9f8] rounded-[3rem] overflow-hidden shadow-sm border border-rose-50">
             <img [src]="currentImage || 'https://via.placeholder.com/600x800'" class="w-full h-full object-cover">
           </div>
-          <div class="grid grid-cols-4 gap-6" *ngIf="product.product_images?.length > 1">
-            <button *ngFor="let img of product.product_images" 
+          <div class="grid grid-cols-4 gap-6" *ngIf="product.images?.length > 1">
+            <button *ngFor="let img of product.images" 
               (click)="currentImage = img.image_url"
               class="aspect-square rounded-2xl overflow-hidden border transition-all"
               [class.border-gold]="currentImage === img.image_url"
@@ -47,7 +47,7 @@ import { CartService } from '../../services/cart.service';
 
         <!-- Purchase Info -->
         <div class="flex flex-col py-10">
-          <span class="text-[10px] font-black text-gold uppercase tracking-[0.4em] mb-4">{{ product.categories?.name }}</span>
+          <span class="text-[10px] font-black text-gold uppercase tracking-[0.4em] mb-4">{{ product.category?.name }}</span>
           <h1 class="text-6xl font-serif font-black text-gray-900 mb-6 italic leading-tight">{{ product.name }}</h1>
           <p class="text-4xl font-light tracking-tighter text-gray-900 mb-12">{{ product.price | currency }}</p>
           
@@ -98,7 +98,7 @@ export class ProductDetail implements OnInit {
       const { data, error } = await this.supabase.getProductBySlug(slug);
       if (data) {
         this.product = data;
-        this.currentImage = data.product_images?.[0]?.image_url || '';
+        this.currentImage = data.images?.[0]?.image_url || '';
       }
       this.loading = false;
     }
