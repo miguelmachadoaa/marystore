@@ -19,17 +19,18 @@ export class CartService {
   total = computed(() => this.cartItems().reduce((acc, item) => acc + (item.price * item.quantity), 0));
 
   addToCart(product: any) {
+
     this.cartItems.update(items => {
       const existing = items.find(i => i.id === product.id);
       if (existing) {
         return items.map(i => i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
       }
-      return [...items, { 
-        id: product.id, 
-        name: product.name, 
-        price: product.price, 
-        image: product.product_images?.[0]?.image_url || '', 
-        quantity: 1 
+      return [...items, {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images?.[0]?.image_url || '',
+        quantity: 1
       }];
     });
   }

@@ -98,10 +98,9 @@ export class Cart {
     public cartService: CartService,
     private supabase: SupabaseService,
     private router: Router
-  ) {}
+  ) { }
 
   get items() {
-    console.log('Cart items:', this.cartService.items());
     return this.cartService.items;
   }
 
