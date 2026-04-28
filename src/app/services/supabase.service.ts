@@ -89,21 +89,33 @@ export class SupabaseService {
   }
 
   async createOrder(customerData: any, items: any[]) {
-    // 1. Create or Find Customer
-    const { data: customer, error: custError } = await this.supabase
+    // 1. Buscar customer por email
+    let { data: customer, error: findError } = await this.supabase
       .from('customers')
-      .insert([{
-        first_name: customerData.firstName,
-        last_name: customerData.lastName,
-        email: customerData.email,
-        phone: customerData.phone
-      }])
       .select()
-      .single();
+      .eq('email', customerData.email)
+      .maybeSingle();
 
-    if (custError) throw custError;
+    if (findError) throw findError;
 
-    // 2. Create Order
+    // 2. Si no existe, crearlo
+    if (!customer) {
+      const { data: newCustomer, error: custError } = await this.supabase
+        .from('customers')
+        .insert([{
+          first_name: customerData.firstName,
+          last_name: customerData.lastName,
+          email: customerData.email,
+          phone: customerData.phone
+        }])
+        .select()
+        .single();
+
+      if (custError) throw custError;
+      customer = newCustomer;
+    }
+
+    // 3. Crear Order
     const { data: order, error: orderError } = await this.supabase
       .from('orders')
       .insert([{
@@ -115,7 +127,7 @@ export class SupabaseService {
 
     if (orderError) throw orderError;
 
-    // 3. Create Order Details
+    // 4. Crear Order Details
     const orderDetails = items.map(item => ({
       order_id: order.id,
       product_id: item.id,
