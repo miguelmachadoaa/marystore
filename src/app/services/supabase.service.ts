@@ -141,7 +141,25 @@ export class SupabaseService {
 
     if (detailsError) throw detailsError;
 
+    // 5. Enviar email
+    await this.sendOrderEmail(customer, order, items);
+
     return order;
+  }
+
+  private async sendOrderEmail(customer: any, order: any, items: any[]) {
+    const { error } = await this.supabase.functions.invoke('mailtrap-email', {
+      body: {
+        customerEmail: customer.email,
+        customerName: `${customer.first_name} ${customer.last_name}`,
+        order,
+        items,
+      },
+    });
+
+    if (error) {
+      console.error('Error enviando email:', error);
+    }
   }
 
   // ORDERS
