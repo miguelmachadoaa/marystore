@@ -55,6 +55,17 @@ import { CartService } from '../../services/cart.service';
             {{ product.description }}
           </div>
 
+          <div class="mt-6">
+            <h3 class="text-sm font-bold mb-2">Materiales</h3>
+
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let m of product.materials"
+                class="px-3 py-1 bg-gray-100 rounded-full text-xs">
+                {{ m.material.name }}
+              </span>
+            </div>
+          </div>
+
           <div class="space-y-6">
             <button (click)="addToCart()" 
               class="btn-primary w-full uppercase tracking-widest text-xs">Añadir a la Bolsa</button>
@@ -73,6 +84,50 @@ import { CartService } from '../../services/cart.service';
           </div>
         </div>
       </div>
+
+      <div class="mt-24 px-10 max-w-7xl mx-auto">
+        <h3 class="text-2xl font-serif font-black italic text-gray-900 mb-10">
+          Piezas Relacionadas
+        </h3>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          
+          <a *ngFor="let p of relatedProducts"
+            [routerLink]="['/product', p.slug]"
+            class="group block bg-white rounded-[2rem] border border-rose-50 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500">
+
+            <!-- Imagen -->
+            <div class="aspect-[3/4] bg-[#fcf9f8] overflow-hidden">
+              <img 
+                [src]="p.images?.[0]?.image_url || 'https://via.placeholder.com/400'"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+            </div>
+
+            <!-- Info -->
+            <div class="p-5 space-y-2">
+              <h4 class="text-sm font-serif font-black text-gray-900 italic line-clamp-2 group-hover:text-gold transition-colors">
+                {{ p.name }}
+              </h4>
+
+              <p class="text-lg font-light tracking-tight text-gray-900">
+                {{ p.price | currency }}
+              </p>
+
+              <!-- Materiales -->
+              <div class="flex flex-wrap gap-1 pt-2">
+                <span *ngFor="let m of p.materials?.slice(0,2)"
+                  class="text-[9px] px-2 py-1 bg-rose-50 text-gray-400 rounded-full uppercase tracking-widest">
+                  {{ m.material?.name }}
+                </span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+
+     
+
     </div>
   `,
   styles: ``,
@@ -81,27 +136,43 @@ export class ProductDetail implements OnInit {
   product: any = null;
   loading = true;
   currentImage = '';
+  relatedProducts: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private supabase: SupabaseService,
     public cartService: CartService
-  ) {}
+  ) { }
 
   cartCount() {
     return this.cartService.count();
   }
 
-  async ngOnInit() {
-    const slug = this.route.snapshot.paramMap.get('slug');
-    if (slug) {
-      const { data, error } = await this.supabase.getProductBySlug(slug);
-      if (data) {
-        this.product = data;
-        this.currentImage = data.images?.[0]?.image_url || '';
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      const slug = params.get('slug');
+      if (slug) {
+        this.loadProduct(slug);
       }
-      this.loading = false;
+    });
+  }
+
+  async loadProduct(slug: string) {
+    this.loading = true;
+    const { data } = await this.supabase.getProductBySlug(slug);
+    if (data) {
+      this.product = data;
+      this.currentImage = data.images?.[0]?.image_url || '';
+      await this.loadRelated(this.product);
     }
+    this.loading = false;
+    window.scrollTo(0, 0); // Regresa arriba para ver el nuevo producto
+  }
+
+  async loadRelated(product: any) {
+    const materialIds = product.materials.map((m: any) => m.material.id);
+    const { data } = await this.supabase.getRelatedProducts(materialIds, product.id);
+    this.relatedProducts = (data || []).map((r: any) => r.product);
   }
 
   addToCart() {

@@ -31,6 +31,65 @@ export class SupabaseService {
       .select('*, category:categories(*), images:product_images(*)');
   }
 
+  // Obtener materiales
+  async getMaterials() {
+    return this.client.from('materials').select('*');
+  }
+
+  // Obtener productos con TODO (incluyendo materiales)
+  async getProductsFull() {
+    return this.client
+      .from('products')
+      .select(`
+        *,
+        category:categories(*),
+        images:product_images(*),
+        materials:product_materials(
+          material:materials(*)
+        )
+      `);
+  }
+
+  // Guardar materiales de producto
+  async saveProductMaterials(productId: string, materialIds: string[]) {
+    // eliminar anteriores
+    await this.client
+      .from('product_materials')
+      .delete()
+      .eq('product_id', productId);
+
+    // insertar nuevas
+    const relations = materialIds.map(id => ({
+      product_id: productId,
+      material_id: id
+    }));
+
+    if (relations.length > 0) {
+      await this.client.from('product_materials').insert(relations);
+    }
+  }
+
+  // Productos relacionados
+  async getRelatedProducts(materialIds: number[], currentId: number) {
+    return this.client
+      .from('product_materials')
+      .select(`
+      product:products(
+        id,
+        name,
+        price,
+        slug,
+        images:product_images(*),
+        materials:product_materials(
+          material:materials(*)
+        )
+      )
+    `)
+      .in('material_id', materialIds)
+      .neq('product_id', currentId)
+      .limit(8);
+  }
+
   // Generic CRUD helpers could be added here
 
   async uploadImage(file: File, bucket: string = 'marystore') {
@@ -83,7 +142,14 @@ export class SupabaseService {
   async getProductBySlug(slug: string) {
     return await this.supabase
       .from('products')
-      .select('*, category:categories(*), images:product_images(*)')
+      .select(`
+        *,
+        category:categories(*),
+        images:product_images(*),
+        materials:product_materials(
+          material:materials(*)
+        )
+      `)
       .eq('slug', slug)
       .single();
   }

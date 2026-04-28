@@ -11,6 +11,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { ProductDetail } from './pages/product-detail/product-detail';
 import { Cart } from './pages/cart/cart';
 import { Thanks } from './pages/thanks/thanks';
+import { Materials } from './pages/admin/materials/materials';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -27,7 +28,8 @@ export const routes: Routes = [
       { path: 'categories', component: Categories },
       { path: 'products', component: Products },
       { path: 'orders', component: Orders },
-      { path: 'orders/:id', component: OrderDetail }
+      { path: 'orders/:id', component: OrderDetail },
+      { path: 'materials', component: Materials }
     ],
   },
 ];

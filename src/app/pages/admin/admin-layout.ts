@@ -24,7 +24,17 @@ import { SupabaseService } from '../../services/supabase.service';
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
             <span class="text-[10px] font-black uppercase tracking-widest">Categorías</span>
           </a>
-          <a routerLink="/admin/products" routerLinkActive="bg-rose-50 text-gold" [routerLinkActiveOptions]="{exact: false}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-rose-50 hover:text-gold transition-all">
+          <a routerLink="/admin/materials" routerLinkActive="bg-rose-50 text-gold"
+            class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-rose-50 hover:text-gold transition-all border border-transparent">
+
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M20 12H4m16 0l-4-4m4 4l-4 4"></path>
+            </svg>
+
+            <span class="text-[10px] font-black uppercase tracking-widest">Materiales</span>
+          </a>
+                    <a routerLink="/admin/products" routerLinkActive="bg-rose-50 text-gold" [routerLinkActiveOptions]="{exact: false}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-rose-50 hover:text-gold transition-all">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
             <span class="text-[10px] font-black uppercase tracking-widest">Productos</span>
           </a>
@@ -68,7 +78,7 @@ import { SupabaseService } from '../../services/supabase.service';
 export class AdminLayout implements OnInit {
   userEmail = '';
 
-  constructor(private supabase: SupabaseService, private router: Router) {}
+  constructor(private supabase: SupabaseService, private router: Router) { }
 
   async ngOnInit() {
     const { data } = await this.supabase.getUser();

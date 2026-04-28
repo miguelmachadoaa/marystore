@@ -4,6 +4,17 @@ export interface Category {
   slug: string;
 }
 
+export interface Material {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface ProductMaterial {
+  material: Material;
+}
+
+
 export interface Product {
   id: number;
   name: string;
@@ -13,6 +24,7 @@ export interface Product {
   slug: string;
   category?: Category;
   images?: ProductImage[];
+  materials?: ProductMaterial[];
 }
 
 export interface ProductImage {

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../../services/supabase.service';
-import { Product, Category, ProductImage } from '../../../models/store.models';
+import { Product, Category, ProductImage, Material } from '../../../models/store.models';
 
 @Component({
   selector: 'app-products',
@@ -54,6 +54,22 @@ import { Product, Category, ProductImage } from '../../../models/store.models';
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Descripción Artesanal</label>
                 <textarea [(ngModel)]="productForm.description" rows="4" class="w-full px-8 py-5 rounded-2xl bg-[#fcf9f8] border border-rose-50 focus:bg-white focus:border-gold outline-none transition-all placeholder:text-gray-200 font-medium"></textarea>
               </div>
+
+              <div class="col-span-full space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">
+                  Materiales
+                </label>
+
+                <select multiple [(ngModel)]="selectedMaterials"
+                  class="w-full px-6 py-4 rounded-2xl bg-[#fcf9f8] border border-rose-50">
+
+                  <option *ngFor="let mat of materialsList" [value]="mat.id">
+                    {{ mat.name }}
+                  </option>
+
+                </select>
+              </div>
+
               
               <!-- Multiple Images -->
               <div class="col-span-full space-y-4">
@@ -133,6 +149,8 @@ export class Products implements OnInit {
   showForm = false;
   editingProduct: any | null = null;
   uploading = false;
+  materialsList: Material[] = [];
+  selectedMaterials: string[] = [];
 
   productForm = {
     name: '',
@@ -149,23 +167,34 @@ export class Products implements OnInit {
     this.load();
     const { data } = await this.supabase.getCategories();
     this.categories = data || [];
+    const { data: materials } = await this.supabase.getMaterials();
+    this.materialsList = materials || [];
   }
 
   async load() {
-    const { data } = await this.supabase.getProducts();
+    const { data } = await this.supabase.getProductsFull();
     this.products = data || [];
   }
 
   startAdd() {
     this.showForm = true;
     this.editingProduct = null;
-    this.productForm = { name: '', description: '', price: 0, category_id: this.categories[0]?.id, slug: '' };
+
+    this.productForm = {
+      name: '',
+      description: '',
+      price: 0,
+      category_id: this.categories[0]?.id,
+      slug: ''
+    };
+
     this.images = [];
+    this.selectedMaterials = [];
   }
 
   edit(prod: any) {
     this.editingProduct = prod;
-    // Only copy relevant fields to prevent pollution
+
     this.productForm = {
       name: prod.name,
       description: prod.description,
@@ -173,7 +202,13 @@ export class Products implements OnInit {
       category_id: prod.category_id,
       slug: prod.slug
     };
-    this.images = (prod.images || prod.product_images)?.map((img: any) => img.image_url) || [];
+
+    this.images = (prod.images || []).map((img: any) => img.image_url);
+
+    // 👇 cargar materiales
+    this.selectedMaterials = (prod.materials || [])
+      .map((m: any) => m.material.id);
+
     this.showForm = true;
   }
 
@@ -250,6 +285,8 @@ export class Products implements OnInit {
         if (imageObjects.length > 0) {
           await this.supabase.client.from('product_images').insert(imageObjects);
         }
+
+        await this.supabase.saveProductMaterials(productId, this.selectedMaterials);
       }
 
       this.cancel();
