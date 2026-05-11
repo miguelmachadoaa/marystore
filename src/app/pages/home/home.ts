@@ -386,7 +386,7 @@ interface Stone {
   `],
 })
 export class Home implements OnInit {
-  products: any[] = [];
+  products = signal<any[]>([]);
   categories = ['Todos los Productos', 'Collares', 'Pulseras', 'Pendientes', 'Anillos'];
 
   selectedStone = signal<Stone | null>(null);
@@ -460,7 +460,9 @@ export class Home implements OnInit {
 
   async ngOnInit() {
     const { data } = await this.supabase.getProducts();
-    this.products = data || [];
+
+    this.products.set(data || []);
+
     // Pre-seleccionar primera piedra
     this.selectedStone.set(this.stones[0]);
   }
@@ -475,8 +477,17 @@ export class Home implements OnInit {
 
   filteredProducts = computed(() => {
     const cat = this.selectedCategory();
-    if (cat === 'Todos los Productos') return this.products;
-    return this.products.filter(p => p.category?.name === cat);
+    const products = this.products();
+
+    console.log('Filtrando productos por categoría:', cat);
+
+    if (cat === 'Todos los Productos') {
+      return products;
+    }
+
+    return products.filter(
+      p => p.category?.name === cat
+    );
   });
 
   addToCart(prod: any) {
