@@ -269,4 +269,12 @@ export class SupabaseService {
     }
     return { data, error: null };
   }
+
+  async registerView(data: any) {
+    return this.supabase
+      .from('views')
+      .insert([data]);
+  }
+
+
 }
