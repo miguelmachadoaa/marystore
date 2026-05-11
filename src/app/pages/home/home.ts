@@ -461,7 +461,6 @@ export class Home implements OnInit {
   async ngOnInit() {
     const { data } = await this.supabase.getProducts();
 
-    await this.registerVisit();
 
     this.products.set(data || []);
 
@@ -504,26 +503,6 @@ export class Home implements OnInit {
     document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  async registerVisit() {
+ 
 
-    const visitData = {
-      page: 'home',
-      path: window.location.pathname,
-
-      user_agent: navigator.userAgent,
-      language: navigator.language,
-
-      screen_width: window.innerWidth,
-      screen_height: window.innerHeight,
-
-      referrer: document.referrer || null,
-    };
-
-    try {
-      await this.supabase.registerView(visitData);
-    } catch (error) {
-      console.error('Error registrando visita', error);
-    }
-  }
-  
 }
