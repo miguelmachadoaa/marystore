@@ -15,7 +15,7 @@ import { CartService } from '../../services/cart.service';
         <div class="max-w-7xl mx-auto px-10 h-24 flex items-center justify-between">
           <div class="flex flex-col">
             <span class="text-3xl font-serif font-black tracking-tighter italic text-gray-900 leading-none">Mary</span>
-            <span class="text-[10px] font-bold tracking-[0.4em] text-gold uppercase ml-1">Boutique</span>
+            <span class="text-[10px] font-bold tracking-[0.4em] text-gold uppercase ml-1">Store</span>
           </div>
           <div class="flex items-center space-x-10">
             <a routerLink="/admin" class="text-[10px] font-black tracking-widest text-gray-400 hover:text-gold transition-colors">ESTUDIO</a>
@@ -31,9 +31,9 @@ import { CartService } from '../../services/cart.service';
       <header class="relative bg-white pt-20 pb-32 px-10 overflow-hidden">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-20">
           <div class="flex-1 space-y-8 animate-fade-in relative z-10">
-            <span class="inline-block text-[10px] font-black tracking-[0.5em] text-gold uppercase underline underline-offset-8 decoration-gold/30">Nueva Colección 2024</span>
-            <h1 class="text-6xl md:text-8xl font-serif font-black text-gray-900 leading-[0.9] italic">Belleza <br>Eterna.</h1>
-            <p class="text-lg text-gray-500 font-light max-w-sm leading-relaxed">Joyas artesanales diseñadas para celebrar a la mujer extraordinaria que eres.</p>
+            <span class="inline-block text-[10px] font-black tracking-[0.5em] text-gold uppercase underline underline-offset-8 decoration-gold/30">Nueva Colección 2026</span>
+            <h1 class="text-6xl md:text-8xl font-serif font-black text-gray-900 leading-[0.9] italic">Belleza <br> con Bienestar.</h1>
+            <p class="text-lg text-gray-500 font-light max-w-sm leading-relaxed">Joyas artesanales diseñadas con piedras naturales.</p>
             <button class="btn-primary uppercase tracking-widest text-xs">Explorar Colección</button>
           </div>
           <div class="flex-1 relative">
