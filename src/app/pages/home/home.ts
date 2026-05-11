@@ -71,7 +71,7 @@ interface Stone {
           <div class="flex-1 relative">
             <div class="hero-img-frame">
               <img
-                src="https://images.unsplash.com/photo-1600003263720-95b45a4035d5?q=80&w=1887&auto=format&fit=crop"
+                src="https://ynabhdhwbozbieeardcu.supabase.co/storage/v1/object/public/marystore/0.03184236208777824.png"
                 class="w-full h-full object-cover hero-img" alt="Pulseras con piedras naturales">
               <!-- Floating badge -->
               <div class="float-badge">
