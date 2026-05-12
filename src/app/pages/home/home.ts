@@ -1,8 +1,9 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { CartService } from '../../services/cart.service';
+import { CatalogService } from '../../services/catalog.service';
 
 interface Stone {
   key: string;
@@ -64,6 +65,13 @@ interface Stone {
 
             <button class="btn-hero" (click)="scrollToProducts()">
               Explorar Pulseras
+            </button>
+            <button
+              class="btn-catalog"
+              (click)="downloadCatalog()"
+              [disabled]="generatingCatalog">
+              <span *ngIf="!generatingCatalog">↓ Descargar Catálogo</span>
+              <span *ngIf="generatingCatalog">✦ Generando PDF...</span>
             </button>
           </div>
 
@@ -383,6 +391,30 @@ interface Stone {
     /* ── Animation ── */
     .animate-fade-in { animation: fadeIn 0.8s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .btn-catalog {
+      display: inline-block;
+      background: transparent;
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      padding: 15px 32px;
+      border-radius: 999px;
+      border: 1.5px solid var(--petal-dark);
+      cursor: pointer;
+      font-family: sans-serif;
+      transition: all 0.2s;
+    }
+    .btn-catalog:hover:not(:disabled) {
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-1px);
+    }
+    .btn-catalog:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   `],
 })
 export class Home implements OnInit {
@@ -453,19 +485,25 @@ export class Home implements OnInit {
     },
   ];
 
-  constructor(
-    private supabase: SupabaseService,
-    private cartService: CartService
-  ) {}
+  generatingCatalog = false;
+
+  private supabase       = inject(SupabaseService);
+  private cartService    = inject(CartService);
+  private catalogService = inject(CatalogService);
 
   async ngOnInit() {
     const { data } = await this.supabase.getProducts();
-
-
     this.products.set(data || []);
-
-    // Pre-seleccionar primera piedra
     this.selectedStone.set(this.stones[0]);
+  }
+
+  async downloadCatalog() {
+    this.generatingCatalog = true;
+    try {
+      await this.catalogService.generateCatalog();
+    } finally {
+      this.generatingCatalog = false;
+    }
   }
 
   selectStone(stone: Stone) {
