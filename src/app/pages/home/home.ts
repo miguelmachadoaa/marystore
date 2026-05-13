@@ -66,13 +66,7 @@ interface Stone {
             <button class="btn-hero" (click)="scrollToProducts()">
               Explorar Pulseras
             </button>
-            <button
-              class="btn-catalog"
-              (click)="downloadCatalog()"
-              [disabled]="generatingCatalog">
-              <span *ngIf="!generatingCatalog">↓ Descargar Catálogo</span>
-              <span *ngIf="generatingCatalog">✦ Generando PDF...</span>
-            </button>
+           
           </div>
 
           <!-- Visual -->
@@ -495,15 +489,6 @@ export class Home implements OnInit {
     const { data } = await this.supabase.getProducts();
     this.products.set(data || []);
     this.selectedStone.set(this.stones[0]);
-  }
-
-  async downloadCatalog() {
-    this.generatingCatalog = true;
-    try {
-      await this.catalogService.generateCatalog();
-    } finally {
-      this.generatingCatalog = false;
-    }
   }
 
   selectStone(stone: Stone) {

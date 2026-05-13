@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../../services/supabase.service';
+import { CatalogService } from '../../../services/catalog.service';
+import { CatalogDetailService } from '../../../services/catalog-detail.service';
 import { Product, Category, ProductImage, Material } from '../../../models/store.models';
 
 @Component({
@@ -15,9 +17,65 @@ import { Product, Category, ProductImage, Material } from '../../../models/store
           <h1 class="text-5xl font-serif font-black text-gray-900 italic">Bóveda de Joyas</h1>
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.4em] mt-2">Gestión del Inventario de Lujo</p>
         </div>
-        <button (click)="startAdd()" class="btn-primary px-10 py-4 uppercase tracking-widest text-[10px] shadow-xl shadow-gold/10">
-          Nueva Pieza
-        </button>
+
+        <!-- Acciones -->
+        <div class="flex items-center gap-3">
+
+          <!-- Catálogo compacto (8 por página) -->
+          <button
+            (click)="downloadCatalog()"
+            [disabled]="generatingCatalog || generatingDetail"
+            class="group flex items-center gap-2 px-6 py-4 rounded-2xl border border-[#c9a96e]/40 bg-white hover:bg-[#c9a96e]/5 hover:border-[#c9a96e] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span *ngIf="!generatingCatalog" class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#c9a96e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <span class="text-[10px] font-black uppercase tracking-widest text-[#c9a96e]">Catálogo Compacto</span>
+            </span>
+            <span *ngIf="generatingCatalog" class="flex items-center gap-2">
+              <span class="animate-spin h-4 w-4 border-2 border-[#c9a96e] border-t-transparent rounded-full"></span>
+              <span class="text-[10px] font-black uppercase tracking-widest text-[#c9a96e]">Generando...</span>
+            </span>
+          </button>
+
+          <!-- Catálogo detalle (1 por página) -->
+          <button
+            (click)="downloadDetailCatalog()"
+            [disabled]="generatingCatalog || generatingDetail"
+            class="group flex items-center gap-2 px-6 py-4 rounded-2xl border border-[#c9a96e]/40 bg-white hover:bg-[#c9a96e]/5 hover:border-[#c9a96e] transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span *ngIf="!generatingDetail" class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#c9a96e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <span class="text-[10px] font-black uppercase tracking-widest text-[#c9a96e]">Catálogo Detalle</span>
+            </span>
+            <span *ngIf="generatingDetail" class="flex items-center gap-2">
+              <span class="animate-spin h-4 w-4 border-2 border-[#c9a96e] border-t-transparent rounded-full"></span>
+              <span class="text-[10px] font-black uppercase tracking-widest text-[#c9a96e]">Generando...</span>
+            </span>
+          </button>
+
+          <!-- Nueva pieza -->
+          <button (click)="startAdd()" class="btn-primary px-10 py-4 uppercase tracking-widest text-[10px] shadow-xl shadow-gold/10">
+            Nueva Pieza
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Toast notificación -->
+      <div *ngIf="toastMsg"
+        class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-2xl shadow-2xl border border-[#c9a96e]/20 bg-white flex items-center gap-3 animate-in slide-in-from-bottom-4 duration-300">
+        <span class="text-[#c9a96e]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        </span>
+        <span class="text-[11px] font-black uppercase tracking-widest text-gray-700">{{ toastMsg }}</span>
       </div>
 
       <!-- Add/Edit Modal (Overlay) -->
@@ -56,24 +114,16 @@ import { Product, Category, ProductImage, Material } from '../../../models/store
               </div>
 
               <div class="col-span-full space-y-2">
-                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">
-                  Materiales
-                </label>
-
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Materiales</label>
                 <select multiple [(ngModel)]="selectedMaterials"
                   class="w-full px-6 py-4 rounded-2xl bg-[#fcf9f8] border border-rose-50">
-
-                  <option *ngFor="let mat of materialsList" [value]="mat.id">
-                    {{ mat.name }}
-                  </option>
-
+                  <option *ngFor="let mat of materialsList" [value]="mat.id">{{ mat.name }}</option>
                 </select>
               </div>
 
-              
               <!-- Multiple Images -->
               <div class="col-span-full space-y-4">
-                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Gelería de Imágenes</label>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Galería de Imágenes</label>
                 <div class="relative group cursor-pointer">
                   <input type="file" (change)="onFileSelected($event)" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                   <div class="w-full py-10 border-2 border-dashed border-rose-100 rounded-[2.5rem] bg-[#fcf9f8] group-hover:bg-rose-50/30 transition-all flex flex-col items-center justify-center text-center">
@@ -152,6 +202,10 @@ export class Products implements OnInit {
   materialsList: Material[] = [];
   selectedMaterials: string[] = [];
 
+  generatingCatalog = false;
+  generatingDetail  = false;
+  toastMsg          = '';
+
   productForm = {
     name: '',
     description: '',
@@ -159,9 +213,13 @@ export class Products implements OnInit {
     category_id: null as any,
     slug: ''
   };
-  images: string[] = []; // URLs of images (newly uploaded or existing)
+  images: string[] = [];
 
-  constructor(private supabase: SupabaseService) { }
+  constructor(
+    private supabase:       SupabaseService,
+    private catalogSvc:     CatalogService,
+    private catalogDetail:  CatalogDetailService,
+  ) { }
 
   async ngOnInit() {
     this.load();
@@ -176,10 +234,43 @@ export class Products implements OnInit {
     this.products = data || [];
   }
 
+  // ── Descarga catálogo compacto (8 por página) ─────────────────────────
+  async downloadCatalog() {
+    this.generatingCatalog = true;
+    try {
+      await this.catalogSvc.generateCatalog();
+      this.showToast('Catálogo compacto descargado');
+    } catch (e) {
+      console.error(e);
+      alert('Error al generar el catálogo compacto');
+    } finally {
+      this.generatingCatalog = false;
+    }
+  }
+
+  // ── Descarga catálogo detalle (1 por página) ──────────────────────────
+  async downloadDetailCatalog() {
+    this.generatingDetail = true;
+    try {
+      await this.catalogDetail.generateCatalog();
+      this.showToast('Catálogo detalle descargado');
+    } catch (e) {
+      console.error(e);
+      alert('Error al generar el catálogo detalle');
+    } finally {
+      this.generatingDetail = false;
+    }
+  }
+
+  private showToast(msg: string) {
+    this.toastMsg = msg;
+    setTimeout(() => this.toastMsg = '', 3000);
+  }
+
+  // ── CRUD ──────────────────────────────────────────────────────────────
   startAdd() {
     this.showForm = true;
     this.editingProduct = null;
-
     this.productForm = {
       name: '',
       description: '',
@@ -187,14 +278,12 @@ export class Products implements OnInit {
       category_id: this.categories[0]?.id,
       slug: ''
     };
-
     this.images = [];
     this.selectedMaterials = [];
   }
 
   edit(prod: any) {
     this.editingProduct = prod;
-
     this.productForm = {
       name: prod.name,
       description: prod.description,
@@ -202,13 +291,8 @@ export class Products implements OnInit {
       category_id: prod.category_id,
       slug: prod.slug
     };
-
     this.images = (prod.images || []).map((img: any) => img.image_url);
-
-    // 👇 cargar materiales
-    this.selectedMaterials = (prod.materials || [])
-      .map((m: any) => m.material.id);
-
+    this.selectedMaterials = (prod.materials || []).map((m: any) => m.material.id);
     this.showForm = true;
   }
 
@@ -244,7 +328,6 @@ export class Products implements OnInit {
     try {
       let productId = this.editingProduct?.id;
 
-      // Ensure slug is unique
       let finalSlug = this.productForm.slug || this.generateSlug(this.productForm.name);
       let isUnique = false;
       let counter = 0;
@@ -255,7 +338,7 @@ export class Products implements OnInit {
           .from('products')
           .select('id')
           .eq('slug', currentSlug)
-          .neq('id', productId || -1) // Exclude current product if editing
+          .neq('id', productId || -1)
           .maybeSingle();
 
         if (existing) {
@@ -267,7 +350,6 @@ export class Products implements OnInit {
         }
       }
 
-      // 1. Save Product
       if (this.editingProduct) {
         await this.supabase.client.from('products').update(this.productForm).eq('id', productId);
       } else {
@@ -277,15 +359,11 @@ export class Products implements OnInit {
       }
 
       if (productId) {
-        // 2. Handle Images (Sync: Delete old and insert new for simplicity)
         await this.supabase.client.from('product_images').delete().eq('product_id', productId);
-        const imageObjects = this.images
-          .map(url => ({ product_id: productId, image_url: url }));
-
+        const imageObjects = this.images.map(url => ({ product_id: productId, image_url: url }));
         if (imageObjects.length > 0) {
           await this.supabase.client.from('product_images').insert(imageObjects);
         }
-
         await this.supabase.saveProductMaterials(productId, this.selectedMaterials);
       }
 
@@ -310,10 +388,10 @@ export class Products implements OnInit {
       .toLowerCase()
       .trim()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove accents
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '-') // Replace spaces with -
-      .replace(/-+/g, '-'); // Remove consecutive -
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
   }
 
   async delete(id: any) {

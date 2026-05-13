@@ -16,17 +16,17 @@ interface Product {
 
 // ─── Colores de marca ────────────────────────────────────────────────────────
 const C = {
-  cream:      [253, 250, 248] as [number, number, number],
-  petal:      [240, 228, 222] as [number, number, number],
-  ink:        [ 26,  23,  20] as [number, number, number],
-  gold:       [201, 169, 110] as [number, number, number],
-  goldLight:  [237, 217, 180] as [number, number, number],
-  muted:      [140, 123, 114] as [number, number, number],
-  white:      [255, 255, 255] as [number, number, number],
+  cream:     [253, 250, 248] as [number, number, number],
+  petal:     [240, 228, 222] as [number, number, number],
+  ink:       [ 26,  23,  20] as [number, number, number],
+  gold:      [201, 169, 110] as [number, number, number],
+  goldLight: [237, 217, 180] as [number, number, number],
+  muted:     [140, 123, 114] as [number, number, number],
+  white:     [255, 255, 255] as [number, number, number],
 };
 
 @Injectable({ providedIn: 'root' })
-export class CatalogService {
+export class CatalogDetailService {
 
   private supabase = inject(SupabaseService);
 
@@ -35,10 +35,14 @@ export class CatalogService {
     const doc      = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
     this.buildCoverPage(doc);
-    await this.buildProductPages(doc, products);
-    this.buildBackPage(doc);
 
-    doc.save('mary-catalogo-2026.pdf');
+    for (let i = 0; i < products.length; i++) {
+      doc.addPage();
+      await this.buildProductPage(doc, products[i], i + 1, products.length);
+    }
+
+    this.buildBackPage(doc);
+    doc.save('mary-catalogo-detalle-2026.pdf');
   }
 
   // ── Fetch de Supabase ─────────────────────────────────────────────────────
@@ -97,7 +101,7 @@ export class CatalogService {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     doc.setCharSpace(3.5);
-    doc.text('COLECCIÓN 2026 · HOLÍSTICA', rx, 60);
+    doc.text('CATÁLOGO DETALLE 2026', rx, 60);
     doc.setCharSpace(0);
 
     doc.setTextColor(...C.ink);
@@ -113,34 +117,15 @@ export class CatalogService {
     doc.setTextColor(...C.muted);
     doc.setFont('times', 'italic');
     doc.setFontSize(11);
-    ['Pulseras artesanales creadas con piedras',
-     'naturales seleccionadas por sus propiedades',
-     'energéticas. Más que joyería — aliadas',
-     'para tu bienestar.',
+    ['Una mirada íntima a cada pieza artesanal,',
+     'sus piedras, sus propiedades energéticas',
+     'y la intención detrás de cada diseño.',
     ].forEach((line, i) => doc.text(line, rx, 122 + i * 7));
 
     doc.setTextColor(...C.goldLight);
     doc.setFont('times', 'bold');
     doc.setFontSize(80);
     doc.text('✦', rx + 58, 200, { align: 'center' });
-
-    this.drawBadge(doc, rx, 220, '100% Piedras Naturales');
-
-    const stones = ['Amatista', 'Cuarzo Rosa', 'Obsidiana', 'Turquesa', 'Citrino'];
-    const stoneColors: [number, number, number][] = [
-      [155, 114, 207], [212, 130, 154], [74, 64, 64], [58, 172, 168], [212, 146, 42],
-    ];
-    stones.forEach((s, i) => {
-      const x = rx + i * 24;
-      doc.setFillColor(...stoneColors[i]);
-      doc.circle(x + 4, 238, 2, 'F');
-      doc.setTextColor(...stoneColors[i]);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(6.5);
-      doc.setCharSpace(0.8);
-      doc.text(s.toUpperCase(), x, 244);
-      doc.setCharSpace(0);
-    });
 
     doc.setFillColor(...C.gold);
     doc.rect(72, H - 18, W - 72, 18, 'F');
@@ -153,196 +138,165 @@ export class CatalogService {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  PÁGINAS DE PRODUCTOS  —  12 productos en 2 columnas × 6 filas
+  //  PÁGINA DE UN PRODUCTO
   // ══════════════════════════════════════════════════════════════════════════
-  private async buildProductPages(doc: jsPDF, products: Product[]): Promise<void> {
-    for (let i = 0; i < products.length; i += 12) {
-      doc.addPage();
-      this.drawPageBackground(doc);
-      this.drawPageHeader(doc, i, products.length);
-
-      for (let j = 0; j < 12 && i + j < products.length; j++) {
-        await this.drawProductCard(doc, products[i + j], j);
-      }
-
-      this.drawPageFooter(doc, Math.floor(i / 12) + 2);
-    }
-  }
-
-  private drawPageBackground(doc: jsPDF): void {
+  private async buildProductPage(doc: jsPDF, product: Product, index: number, total: number): Promise<void> {
     const W = 210, H = 297;
+
+    // Fondo
     doc.setFillColor(...C.cream);
     doc.rect(0, 0, W, H, 'F');
-    doc.setDrawColor(...C.petal);
-    doc.setLineWidth(0.4);
-    doc.rect(8, 8, W - 16, H - 16);
 
-    const corners: [number, number][] = [[8,8],[202,8],[8,289],[202,289]];
-    const dirs:    [number, number][] = [[1,1],[-1,1],[1,-1],[-1,-1]];
-    doc.setDrawColor(...C.gold);
-    doc.setLineWidth(0.6);
-    corners.forEach(([cx, cy], k) => {
-      const [dx, dy] = dirs[k];
-      doc.line(cx, cy, cx + dx * 8, cy);
-      doc.line(cx, cy, cx, cy + dy * 8);
-    });
-  }
+    // Franja lateral izquierda con color de categoría
+    const catColor = this.getCategoryColor(product.category?.name);
+    doc.setFillColor(...catColor);
+    doc.rect(0, 0, 6, H, 'F');
 
-  private drawPageHeader(doc: jsPDF, startIdx: number, total: number): void {
+    // Decoración esquinas
+    this.drawCornerAccents(doc);
+
+    // ── Header ────────────────────────────────────────────────────────────
     doc.setDrawColor(...C.goldLight);
     doc.setLineWidth(0.4);
-    doc.line(14, 20, 196, 20);
+    doc.line(14, 20, W - 14, 20);
 
     doc.setTextColor(...C.gold);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(6);
     doc.setCharSpace(3);
-    doc.text('MARY · JOYERÍA & BIENESTAR', 14, 17);
+    doc.text('MARY · CATÁLOGO DETALLE 2026', 14, 17);
     doc.setCharSpace(0);
 
     doc.setTextColor(...C.muted);
     doc.setFontSize(6.5);
-    doc.text(`${startIdx + 1}–${Math.min(startIdx + 12, total)} de ${total} piezas`, 196, 17, { align: 'right' });
-  }
+    doc.text(`${index} de ${total}`, W - 14, 17, { align: 'right' });
 
-  private async drawProductCard(doc: jsPDF, product: Product, position: number): Promise<void> {
-    const W = 210, H = 297;
+    // ── Zona superior: Imagen principal grande + galería ──────────────────
+    const mainImgX = 14;
+    const mainImgY = 26;
+    const mainImgW = W - 28;   // ancho completo entre márgenes
+    const mainImgH = 120;
 
-    // ── Layout 2 columnas × 4 filas ─────────────────────────────────────
-    const COLS      = 2;
-    const ROWS      = 6;
-    const col       = position % COLS;
-    const row       = Math.floor(position / COLS);
+    // Fondo imagen principal
+    doc.setFillColor(...C.petal);
+    doc.roundedRect(mainImgX, mainImgY, mainImgW, mainImgH, 4, 4, 'F');
 
-    const marginX   = 12;
-    const marginTop = 23;
-    const marginBot = 18;
-    const gapX      = 4;
-    const gapY      = 2;
-
-    const usableW   = W - 2 * marginX;
-    const usableH   = H - marginTop - marginBot;
-    const cardW     = (usableW - gapX) / COLS;               // ≈ 91 mm
-    const cardH     = (usableH - gapY * (ROWS - 1)) / ROWS;  // ≈ 61 mm
-
-    const cardX     = marginX + col * (cardW + gapX);
-    const cardY     = marginTop + row * (cardH + gapY);
-
-    // ── Imagen ──────────────────────────────────────────────────────────
-    const imgPad    = 2.5;
-    const imgW      = 26;
-    const imgH      = cardH - 2 * imgPad;
-    const imgX      = cardX + imgPad;
-    const imgY      = cardY + imgPad;
-    const textX     = imgX + imgW + 4;
-    const textW     = cardX + cardW - textX - imgPad;
-
-    // Sombra / fondo de card
-    doc.setFillColor(245, 242, 240);
-    doc.roundedRect(cardX - 1, cardY - 1, cardW + 2, cardH + 2, 3, 3, 'F');
-    doc.setFillColor(...C.white);
-    doc.roundedRect(cardX, cardY, cardW, cardH, 2.5, 2.5, 'F');
-
-    // Borde izquierdo de color por categoría
-    const catColor = this.getCategoryColor(product.category?.name);
-    doc.setFillColor(...catColor);
-    doc.roundedRect(cardX, cardY, 2.5, cardH, 1.5, 1.5, 'F');
-
-    // Imagen del producto
-    const imageUrl = product.images?.[0]?.image_url;
-    if (imageUrl) {
+    const mainUrl = product.images?.[0]?.image_url;
+    if (mainUrl) {
       try {
-        const imgData = await this.loadImageAsBase64(imageUrl);
-        doc.setFillColor(...C.petal);
-        doc.roundedRect(imgX, imgY, imgW, imgH, 2, 2, 'F');
-        doc.addImage(imgData, 'JPEG', imgX, imgY, imgW, imgH, '', 'FAST');
+        const imgData = await this.loadImageAsBase64(mainUrl);
+        doc.addImage(imgData, 'JPEG', mainImgX, mainImgY, mainImgW, mainImgH, '', 'FAST');
       } catch {
-        this.drawImagePlaceholder(doc, imgX, imgY, imgW, imgH);
+        this.drawImagePlaceholder(doc, mainImgX, mainImgY, mainImgW, mainImgH, 22);
       }
     } else {
-      this.drawImagePlaceholder(doc, imgX, imgY, imgW, imgH);
+      this.drawImagePlaceholder(doc, mainImgX, mainImgY, mainImgW, mainImgH, 22);
     }
 
-    // ── Texto ────────────────────────────────────────────────────────────
-    const ty = cardY + 6;
+
+    // ── Zona de texto ────────────────────────────────────────────────────
+    const textY = mainImgY + mainImgH + 10;
+    const textX = 14;
+    const textW = W - 28;
 
     // Categoría
     doc.setTextColor(...catColor);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.5);
-    doc.setCharSpace(1.8);
-    doc.text((product.category?.name || 'Joyería').toUpperCase(), textX, ty);
+    doc.setFontSize(6);
+    doc.setCharSpace(3);
+    doc.text((product.category?.name || 'Joyería').toUpperCase(), textX, textY);
     doc.setCharSpace(0);
 
-    // Nombre del producto
+    // Nombre grande
     doc.setTextColor(...C.ink);
     doc.setFont('times', 'bolditalic');
-    doc.setFontSize(9.5);
+    doc.setFontSize(28);
     const nameLines = doc.splitTextToSize(product.name, textW);
-    doc.text(nameLines.slice(0, 2), textX, ty + 5);
+    doc.text(nameLines.slice(0, 2), textX, textY + 9);
 
-    // Línea dorada bajo el nombre
-    const nameLineY = ty + 5 + Math.min(nameLines.length, 2) * 4.2;
-    doc.setDrawColor(...C.goldLight);
-    doc.setLineWidth(0.3);
-    doc.line(textX, nameLineY, textX + 24, nameLineY);
+    // Línea dorada
+    const afterName = textY + 9 + Math.min(nameLines.length, 2) * 10;
+    doc.setDrawColor(...C.gold);
+    doc.setLineWidth(0.8);
+    doc.line(textX, afterName, textX + 60, afterName);
 
-    // Descripción (máx 2 líneas)
-    doc.setTextColor(...C.muted);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(6);
-    const descText  = product.description || 'Pieza artesanal con piedras naturales seleccionadas.';
-    const descLines = doc.splitTextToSize(descText, textW);
-    doc.text(descLines.slice(0, 2), textX, nameLineY + 4);
-
-    // Materiales (1 línea)
-    if (product.materials?.length) {
-      const matsY   = nameLineY + 4 + Math.min(descLines.length, 2) * 3.5 + 2.5;
-      const matText = product.materials.map((m: any) => m.name).join(' · ');
-      doc.setTextColor(...C.gold);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(4.5);
-      doc.setCharSpace(1);
-      doc.text(matText.toUpperCase(), textX, matsY);
-      doc.setCharSpace(0);
-    }
-
-    // Precio
-    const priceY = cardY + cardH - 5;
-    doc.setTextColor(...C.ink);
-    doc.setFont('times', 'bold');
-    doc.setFontSize(10.5);
-    doc.text(`$${product.price.toFixed(2)}`, textX, priceY);
-
-    // ✦ decorativo
-    doc.setTextColor(...C.goldLight);
-    doc.setFontSize(11);
-    doc.text('✦', cardX + cardW - 7, priceY - 1);
-  }
-
-  private drawImagePlaceholder(doc: jsPDF, x: number, y: number, w: number, h: number): void {
-    doc.setFillColor(...C.petal);
-    doc.roundedRect(x, y, w, h, 3, 3, 'F');
+    // Precio destacado
     doc.setTextColor(...C.gold);
     doc.setFont('times', 'bold');
-    doc.setFontSize(28);
-    doc.text('◉', x + w / 2, y + h / 2 + 4, { align: 'center' });
-    doc.setTextColor(...C.muted);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(6);
-    doc.text('IMAGEN', x + w / 2, y + h / 2 + 11, { align: 'center' });
-  }
+    doc.setFontSize(22);
+    doc.text(`$${product.price.toFixed(2)}`, W - 14, afterName, { align: 'right' });
 
-  private drawPageFooter(doc: jsPDF, pageNum: number): void {
-    const W = 210, H = 297;
+    // Línea separadora precio
+    doc.setDrawColor(...C.goldLight);
+    doc.setLineWidth(0.3);
+    doc.line(W - 60, afterName, W - 14, afterName);
+
+    // Descripción
+    const descY = afterName + 8;
+    doc.setTextColor(...C.muted);
+    doc.setFont('times', 'italic');
+    doc.setFontSize(9.5);
+    const descText  = product.description || 'Pieza artesanal con piedras naturales seleccionadas con intención.';
+    const descLines = doc.splitTextToSize(descText, textW);
+    doc.text(descLines.slice(0, 5), textX, descY);
+
+    // ── Bloque de materiales ──────────────────────────────────────────────
+    const matsY = descY + Math.min(descLines.length, 5) * 5 + 8;
+
+    if (product.materials?.length) {
+      // Título sección
+      doc.setTextColor(...C.ink);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(6);
+      doc.setCharSpace(2.5);
+      doc.text('PIEDRAS & MATERIALES', textX, matsY);
+      doc.setCharSpace(0);
+
+      // Pills de materiales
+      const stoneColors: [number, number, number][] = [
+        [155, 114, 207], [212, 130, 154], [74,  64,  64],
+        [ 58, 172, 168], [212, 146,  42], [100, 140, 200],
+      ];
+
+      let pillX = textX;
+      const pillY = matsY + 5;
+
+      product.materials.forEach((m: any, idx: number) => {
+        const label   = m.name.toUpperCase();
+        const color   = stoneColors[idx % stoneColors.length];
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(6);
+        const labelW  = doc.getTextWidth(label);
+        const pillW   = labelW + 10;
+        const pillH   = 6;
+
+        // Si se sale del margen, saltar línea
+        if (pillX + pillW > W - 14) {
+          pillX = textX;
+        }
+
+        doc.setFillColor(...color);
+        doc.roundedRect(pillX, pillY - 4, pillW, pillH, 3, 3, 'F');
+        doc.setTextColor(...C.white);
+        doc.setCharSpace(0.5);
+        doc.text(label, pillX + 5, pillY + 0.5);
+        doc.setCharSpace(0);
+
+        pillX += pillW + 3;
+      });
+    }
+
+    // ── Footer ────────────────────────────────────────────────────────────
     doc.setDrawColor(...C.goldLight);
     doc.setLineWidth(0.4);
     doc.line(14, H - 18, W - 14, H - 18);
+
     doc.setTextColor(...C.muted);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6.5);
     doc.text('© 2026 Mary · Curado con amor y cristales', 14, H - 12);
-    doc.text(`${pageNum}`, W - 14, H - 12, { align: 'right' });
+    doc.text(`${index}`, W - 14, H - 12, { align: 'right' });
+
     doc.setFillColor(...C.gold);
     doc.circle(W / 2, H - 13, 1, 'F');
   }
@@ -441,6 +395,32 @@ export class CatalogService {
   //  HELPERS
   // ══════════════════════════════════════════════════════════════════════════
 
+  private drawCornerAccents(doc: jsPDF): void {
+    const W = 210, H = 297;
+    const corners: [number, number][] = [[8,8],[202,8],[8,289],[202,289]];
+    const dirs:    [number, number][] = [[1,1],[-1,1],[1,-1],[-1,-1]];
+    doc.setDrawColor(...C.gold);
+    doc.setLineWidth(0.6);
+    corners.forEach(([cx, cy], k) => {
+      const [dx, dy] = dirs[k];
+      doc.line(cx, cy, cx + dx * 8, cy);
+      doc.line(cx, cy, cx, cy + dy * 8);
+    });
+  }
+
+  private drawImagePlaceholder(doc: jsPDF, x: number, y: number, w: number, h: number, fontSize = 28): void {
+    doc.setFillColor(...C.petal);
+    doc.roundedRect(x, y, w, h, 3, 3, 'F');
+    doc.setTextColor(...C.gold);
+    doc.setFont('times', 'bold');
+    doc.setFontSize(fontSize);
+    doc.text('◉', x + w / 2, y + h / 2 + fontSize * 0.14, { align: 'center' });
+    doc.setTextColor(...C.muted);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6);
+    doc.text('IMAGEN', x + w / 2, y + h / 2 + fontSize * 0.14 + 7, { align: 'center' });
+  }
+
   private loadImageAsBase64(url: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -457,6 +437,28 @@ export class CatalogService {
     });
   }
 
+  /** Carga la imagen y la recorta al centro en un cuadrado perfecto */
+  private loadImageAsBase64CropSquare(url: string, _sizeMm: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const side   = Math.min(img.naturalWidth, img.naturalHeight);
+        const sx     = Math.floor((img.naturalWidth  - side) / 2);
+        const sy     = Math.floor((img.naturalHeight - side) / 2);
+        const canvas = document.createElement('canvas');
+        // Renderizar a resolución fija alta para buena calidad en PDF
+        const px = 400;
+        canvas.width  = px;
+        canvas.height = px;
+        canvas.getContext('2d')!.drawImage(img, sx, sy, side, side, 0, 0, px, px);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = reject;
+      img.src = url.includes('?') ? url : `${url}?t=${Date.now()}`;
+    });
+  }
+
   private getCategoryColor(categoryName?: string): [number, number, number] {
     const map: Record<string, [number, number, number]> = {
       'Pulseras':   [155, 114, 207],
@@ -465,21 +467,5 @@ export class CatalogService {
       'Anillos':    [212, 146,  42],
     };
     return map[categoryName ?? ''] ?? C.gold;
-  }
-
-  private drawBadge(doc: jsPDF, x: number, y: number, text: string): void {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.5);
-    const bW = doc.getTextWidth(text) + 22;
-    doc.setFillColor(...C.white);
-    doc.roundedRect(x, y - 7, bW, 9, 4, 4, 'F');
-    doc.setTextColor(...C.gold);
-    doc.setFontSize(9);
-    doc.text('✦', x + 4, y - 1);
-    doc.setTextColor(...C.ink);
-    doc.setFontSize(7.5);
-    doc.setCharSpace(0.5);
-    doc.text(text, x + 13, y - 1);
-    doc.setCharSpace(0);
   }
 }
